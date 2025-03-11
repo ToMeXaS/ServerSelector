@@ -1,0 +1,12 @@
+name: ServerSelector
+version: '0.1.0'
+main: lt.tomexas.serverselector.Main
+api-version: '1.21'
+authors: [ ToMeXaS ]
+description: Server Selector Plugin
+website: tomexas.lt
+depend:
+  - ProtocolLib
+commands:
+  setBg:
+    description: Set background
