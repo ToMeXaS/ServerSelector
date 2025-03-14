@@ -85,7 +85,11 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
     private void setupDatabase() {
         try {
             if (!getDataFolder().exists()) {
-                getDataFolder().mkdirs();
+                if (!getDataFolder().mkdirs()) {
+                    getLogger().severe("Failed to create data folder!");
+                    Bukkit.getPluginManager().disablePlugin(this);
+                    return;
+                }
             }
             database = new Database(getDataFolder().getAbsolutePath() + "/main.db");
         } catch (SQLException e) {
