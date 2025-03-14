@@ -3,22 +3,21 @@ package lt.tomexas.serverselector;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import lt.tomexas.serverselector.Commands.*;
 import lt.tomexas.serverselector.Listeners.*;
 import lt.tomexas.serverselector.Utils.HudManager;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin implements PluginMessageListener {
 
@@ -45,8 +44,6 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
         if (database.getUUID() != null)
             armorStand = (ArmorStand) Bukkit.getEntity(UUID.fromString(database.getUUID()));
 
-        getCommand("setBg").setExecutor(new BGCommand());
-
         pluginManager.registerEvents(new PlayerJoinListener(), this);
         pluginManager.registerEvents(new PlayerQuitListener(), this);
         pluginManager.registerEvents(new PlayerToggleSneakListener(), this);
@@ -58,7 +55,7 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
         if (!channel.equals("BungeeCord")) {
             return;
         }
@@ -81,7 +78,7 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
         try {
             database.closeConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Logger.getLogger("Minecraft").severe("Failed to close the database connection! " + e.getMessage());
         }
     }
 
@@ -92,7 +89,6 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
             }
             database = new Database(getDataFolder().getAbsolutePath() + "/main.db");
         } catch (SQLException e) {
-            e.printStackTrace();
             getLogger().severe("Failed to connect to the database! " + e.getMessage());
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -100,10 +96,6 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
 
     public static Main getInstance() {
         return instance;
-    }
-
-    public Database getDatabase() {
-        return database;
     }
 
     public ProtocolManager getProtocolManager() {
@@ -116,10 +108,6 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
 
     public ArmorStand getArmorStand() {
         return armorStand;
-    }
-
-    public void setArmorStand(ArmorStand armorStand) {
-        this.armorStand = armorStand;
     }
 
     public Map<Player, BossBar> getPlayerHud() {

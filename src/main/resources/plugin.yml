@@ -7,6 +7,3 @@ description: Server Selector Plugin
 website: tomexas.lt
 depend:
   - ProtocolLib
-commands:
-  setBg:
-    description: Set background
