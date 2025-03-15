@@ -7,3 +7,4 @@ description: Server Selector Plugin
 website: tomexas.lt
 depend:
   - ProtocolLib
+  - ajQueue

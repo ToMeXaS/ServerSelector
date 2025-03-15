@@ -6,7 +6,9 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lt.tomexas.serverselector.Listeners.*;
 import lt.tomexas.serverselector.Utils.HudManager;
+import lt.tomexas.serverselector.Utils.Spacer;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -28,12 +30,13 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
     private HudManager hudManager;
     private ArmorStand armorStand;
     private final Map<Player, BossBar> playerHud = new HashMap<>();
-
     private final List<String> servers = new ArrayList<>();
+    private final Map<UUID, Boolean> playerQueueStatus = new HashMap<>();
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "lobby:server_selector");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "lobby:server_selector", this);
 
         instance = this;
         protocolManager = ProtocolLibrary.getProtocolManager();
@@ -50,19 +53,23 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
         pluginManager.registerEvents(new PlayerItemHeldListener(), this);
         pluginManager.registerEvents(new PlayerArmSwingListener(), this);
 
+        pluginManager.registerEvents(new QueueJoinListener(), this);
+        pluginManager.registerEvents(new QueueLeaveListener(), this);
+
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
     }
 
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
-        if (!channel.equals("BungeeCord")) {
+        if (!channel.equals("BungeeCord") && !channel.equals("lobby:server_selector")) {
             return;
         }
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
 
+        // GetServers subchannel
         if (subChannel.equals("GetServers")) {
             List<String> servers = new ArrayList<>(Arrays.asList(in.readUTF().split(", ")));
             servers.remove("lobby");
@@ -70,6 +77,49 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
             Collections.reverse(servers);
             setServers(servers);
         }
+
+        // PlayerInQueue subchannel
+        if (subChannel.equals("PlayerInQueue")) {
+            String playerUUID = in.readUTF();
+            boolean inQueue = in.readBoolean();
+            //Logger.getLogger("Minecraft").info("Player " + playerUUID + " is in queue: " + inQueue);
+            playerQueueStatus.put(UUID.fromString(playerUUID), inQueue);
+        }
+
+        // PlayerPositionChanged subchannel
+        if (subChannel.equals("PlayerPositionChanged")) {
+            int position = in.readInt();
+            int total = in.readInt();
+            //Logger.getLogger("Minecraft").info("Player " + playerUUID + " is now in position " + position + " out of " + total);
+
+            BossBar bossBar = getPlayerHud().get(player);
+            // Then in your onPluginMessageReceived method
+            Component component = hudManager.getPlayerQueueTitle().get(player)
+                    .replaceText(builder -> builder
+                            .match(Spacer.getNegativeSpacer(163) + "Pick your realm and make it unforgettable!")
+                            .replacement(getQueueText(position, total))
+                    );
+            bossBar.name(component);
+        }
+    }
+
+    public static String getQueueText(int position, int total) {
+        String text = "Your position in queue " + position + " out of " + total;
+
+        // Base text lengths in pixels (approximate Minecraft font widths)
+        int baseTextWidth = "Your position in queue 1 out of 1".length() * 6;
+        int currentTextWidth = text.length() * 6;
+
+        // Calculate the difference in width
+        int widthDifference = currentTextWidth - baseTextWidth;
+
+        // Adjust spacers to maintain centering
+        int negativeSpacer = 143 + (widthDifference / 2);
+        int positiveSpacer = 26 - (widthDifference / 2);
+
+        return Spacer.getNegativeSpacer(negativeSpacer) +
+                text +
+                Spacer.getPositiveSpacer(positiveSpacer);
     }
 
     @Override
@@ -96,6 +146,10 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
             getLogger().severe("Failed to connect to the database! " + e.getMessage());
             Bukkit.getPluginManager().disablePlugin(this);
         }
+    }
+
+    public void cleanupQueueCache(UUID uuid) {
+        playerQueueStatus.remove(uuid);
     }
 
     public static Main getInstance() {
@@ -125,5 +179,9 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
     public void setServers(List<String> servers) {
         this.servers.clear();
         this.servers.addAll(servers);
+    }
+
+    public Map<UUID, Boolean> getPlayerQueueStatus() {
+        return playerQueueStatus;
     }
 }

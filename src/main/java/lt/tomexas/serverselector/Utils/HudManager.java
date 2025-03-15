@@ -13,9 +13,9 @@ public class HudManager {
 
     private final Main plugin = Main.getInstance();
     private final Map<Player, BossBar> playerHud = plugin.getPlayerHud();
-
     private final Map<Player, Integer> playerServerIndex = new HashMap<>();
-
+    private final Map<Player, Component> playerBarTitle = new HashMap<>();
+    private final Map<Player, Component> playerQueueTitle = new HashMap<>();
     private final Component bossBarTitle = MiniMessage.miniMessage().deserialize("<font:hud>" +
             "\uE003"
             + Spacer.getNegativeSpacer(1200)
@@ -54,4 +54,11 @@ public class HudManager {
         return playerServerIndex;
     }
 
+    public Map<Player, Component> getPlayerBarTitle() {
+        return playerBarTitle;
+    }
+
+    public Map<Player, Component> getPlayerQueueTitle() {
+        return playerQueueTitle;
+    }
 }

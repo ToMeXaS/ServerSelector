@@ -16,7 +16,7 @@ public class PlayerItemHeldListener implements Listener {
     private final Main plugin = Main.getInstance();
     private final HudManager hudManager = plugin.getHudManager();
     private final Component originalBossBarTitle = plugin.getHudManager().getBossBarTitle().replaceText(builder ->
-            builder.matchLiteral("\uE007").replacement("\uE006"));;
+            builder.matchLiteral("\uE007").replacement("\uE006"));
 
     @EventHandler
     public void onPlayerItemHeld(PlayerItemHeldEvent event) {
@@ -24,6 +24,8 @@ public class PlayerItemHeldListener implements Listener {
         int currentIndex = hudManager.getPlayerServerIndex().get(player);
         List<String> servers = plugin.getServers();
         event.setCancelled(true);
+
+        if (plugin.getPlayerQueueStatus().getOrDefault(player.getUniqueId(), false)) return;
 
         if (event.getNewSlot() > event.getPreviousSlot()) {
             currentIndex = (currentIndex + 1) % servers.size();
@@ -34,7 +36,9 @@ public class PlayerItemHeldListener implements Listener {
         hudManager.getPlayerServerIndex().put(player, currentIndex);
         String currentServer = servers.get(currentIndex);
         BossBar bossBar = plugin.getPlayerHud().get(player);
-        bossBar.name(getBossBarTitleForServer(currentServer));
+        Component component = getBossBarTitleForServer(currentServer);
+        hudManager.getPlayerBarTitle().put(player, component);
+        bossBar.name(component);
         //player.sendMessage("You scrolled to: " + currentServer);
     }
 
