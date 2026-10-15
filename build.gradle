@@ -7,37 +7,25 @@ version = '0.1.0'
 
 repositories {
     mavenCentral()
-    gradlePluginPortal()
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
-        name = "sonatype"
-        url = "https://oss.sonatype.org/content/groups/public/"
-    }
-    maven {
-        name = "nexomc"
-        url = "https://repo.nexomc.com/releases"
-    }
-    maven {
-        name = "panda-repo"
-        url = "https://repo.panda-lang.org/releases"
-    }
-    maven {
-        name = 'dmulloy2-repo'
-        url = 'https://repo.dmulloy2.net/repository/public/'
-    }
-    maven {
+        name = "ajg0702"
         url = uri("https://repo.ajg0702.us/releases")
     }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("com.nexomc:nexo:0.7.0")
     compileOnly('net.dmulloy2:ProtocolLib:5.4.0')
-    compileOnly("us.ajg0702.queue.api:api:2.7.0")
+    compileOnly("us.ajg0702.queue.api:api:2.9.1")
+
+    testImplementation("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    testImplementation(platform('org.junit:junit-bom:5.11.4'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 java {
@@ -50,6 +38,10 @@ tasks.withType(JavaCompile).configureEach {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
     options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources {

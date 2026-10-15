@@ -31,3 +31,9 @@ out/
 # Local test network
 testserver/
 .superpowers/
+
+# The wrapper jar is needed to build
+!gradle/wrapper/gradle-wrapper.jar
+
+# Downloaded asset packs
+tools/.cache/
