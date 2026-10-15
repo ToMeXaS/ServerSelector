@@ -1,7 +1,5 @@
 package lt.tomexas.serverselector.Listeners;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lt.tomexas.serverselector.Main;
@@ -30,10 +28,6 @@ public class PlayerJoinListener implements Listener {
 
         // Increase delay to ensure entity is properly spawned
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            PacketContainer packet = plugin.getProtocolManager().createPacket(PacketType.Play.Server.CAMERA);
-            packet.getIntegers().write(0, plugin.getArmorStand().getEntityId());
-            plugin.getProtocolManager().sendServerPacket(player, packet);
-
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("GetServers");
             player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
@@ -44,6 +38,8 @@ public class PlayerJoinListener implements Listener {
 
             plugin.getPlayerHud().put(player, bossBar);
             hudManager.getPlayerServerIndex().put(player, 0);
+            hudManager.getPlayerBarTitle().put(player, hudManager.getBossBarTitle());
+            plugin.getCursorManager().attach(player);
             hudManager.sendHud(player);
         }, 10L);
     }

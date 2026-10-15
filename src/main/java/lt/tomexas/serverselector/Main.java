@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import lt.tomexas.serverselector.Listeners.*;
+import lt.tomexas.serverselector.Utils.CursorManager;
 import lt.tomexas.serverselector.Utils.HudManager;
 import lt.tomexas.serverselector.Utils.Spacer;
 import net.kyori.adventure.bossbar.BossBar;
@@ -28,6 +29,7 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
     private Database database;
     private final PluginManager pluginManager = Bukkit.getPluginManager();
     private HudManager hudManager;
+    private CursorManager cursorManager;
     private ArmorStand armorStand;
     private final Map<Player, BossBar> playerHud = new HashMap<>();
     private final List<String> servers = new ArrayList<>();
@@ -47,11 +49,15 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
         if (database.getUUID() != null)
             armorStand = (ArmorStand) Bukkit.getEntity(UUID.fromString(database.getUUID()));
 
+        cursorManager = new CursorManager();
+
         pluginManager.registerEvents(new PlayerJoinListener(), this);
         pluginManager.registerEvents(new PlayerQuitListener(), this);
         pluginManager.registerEvents(new PlayerToggleSneakListener(), this);
         pluginManager.registerEvents(new PlayerItemHeldListener(), this);
         pluginManager.registerEvents(new PlayerArmSwingListener(), this);
+        pluginManager.registerEvents(new PlayerDismountListener(), this);
+        pluginManager.registerEvents(new PlayerKickListener(), this);
 
         pluginManager.registerEvents(new QueueJoinListener(), this);
         pluginManager.registerEvents(new QueueLeaveListener(), this);
@@ -124,6 +130,7 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
 
     @Override
     public void onDisable() {
+        if (cursorManager != null) cursorManager.detachAll();
         protocolManager.removePacketListeners(this);
         try {
             database.closeConnection();
@@ -162,6 +169,10 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
 
     public HudManager getHudManager() {
         return hudManager;
+    }
+
+    public CursorManager getCursorManager() {
+        return cursorManager;
     }
 
     public ArmorStand getArmorStand() {

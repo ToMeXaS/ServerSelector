@@ -35,11 +35,7 @@ public class HudManager {
             + Spacer.getNegativeSpacer(215) +
             "<gray>something legendary.</gray></font><font:hud_realm>"
             + Spacer.getNegativeSpacer(163) +
-            "Pick your realm and make it unforgettable!</font><font:hud_buttons>"
-            + Spacer.getNegativeSpacer(250) +
-            "\uE007"
-            + Spacer.getPositiveSpacer(20) +
-            "\uE004</font>");
+            "Pick your realm and make it unforgettable!</font>");
 
     public void sendHud(Player player) {
         if (playerHud.get(player) == null) return;

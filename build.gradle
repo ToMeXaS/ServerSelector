@@ -36,7 +36,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.nexomc:nexo:0.7.0")
-    compileOnly('com.comphenix.protocol:ProtocolLib:5.1.0')
+    compileOnly('net.dmulloy2:ProtocolLib:5.4.0')
     compileOnly("us.ajg0702.queue.api:api:2.7.0")
 }
 

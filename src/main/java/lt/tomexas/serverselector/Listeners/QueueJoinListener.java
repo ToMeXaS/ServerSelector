@@ -17,17 +17,8 @@ public class QueueJoinListener implements Listener {
     @EventHandler
     public void onQueueJoin(QueueJoinEvent event) {
         Player player = event.getPlayer();
-        String server = event.getServer();
         BossBar bossBar = plugin.getPlayerHud().get(player);
         Component component = hudManager.getPlayerBarTitle().get(player);
-        switch (server) {
-            case "skyblock" -> component = component
-                    .replaceText(builder -> builder.matchLiteral("\uE005").replacement("\uE010"))
-                    .replaceText(builder -> builder.matchLiteral("\uE006").replacement("\uE008"));
-            case "nations" -> component = component
-                    .replaceText(builder -> builder.matchLiteral("\uE007").replacement("\uE010"))
-                    .replaceText(builder -> builder.matchLiteral("\uE004").replacement("\uE009"));
-        }
         hudManager.getPlayerQueueTitle().put(player, component);
         bossBar.name(component);
     }

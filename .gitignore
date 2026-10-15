@@ -27,3 +27,7 @@ replay_pid*
 build/
 .idea
 out/
+
+# Local test network
+testserver/
+.superpowers/

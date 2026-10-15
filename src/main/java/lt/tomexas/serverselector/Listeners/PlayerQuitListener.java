@@ -19,5 +19,6 @@ public class PlayerQuitListener implements Listener {
         hudManager.getPlayerServerIndex().remove(player);
         hudManager.getPlayerBarTitle().remove(player);
         plugin.cleanupQueueCache(player.getUniqueId());
+        plugin.getCursorManager().detach(player);
     }
 }

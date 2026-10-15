@@ -34,10 +34,15 @@ public class PlayerArmSwingListener implements Listener {
             return;
         }
         if (event.getHand().equals(EquipmentSlot.HAND)) {
-            setCooldown(player);
-            int currentIndex = hudManager.getPlayerServerIndex().get(player);
+            boolean inQueue = plugin.getPlayerQueueStatus().getOrDefault(player.getUniqueId(), false);
+            int hoveredIndex = plugin.getCursorManager().getHoveredIndex(player);
+            // Joining a queue needs the cursor on a button; leaving works from anywhere
+            if (!inQueue && hoveredIndex < 0) return;
 
-            if (plugin.getPlayerQueueStatus().getOrDefault(player.getUniqueId(), false)) {
+            setCooldown(player);
+            int currentIndex = inQueue ? hudManager.getPlayerServerIndex().get(player) : hoveredIndex;
+
+            if (inQueue) {
                 ByteArrayDataOutput stream = ByteStreams.newDataOutput();
                 stream.writeUTF("RemoveFromQueue");
                 stream.writeUTF(player.getUniqueId().toString());
