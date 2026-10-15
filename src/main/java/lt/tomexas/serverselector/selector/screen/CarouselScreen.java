@@ -205,9 +205,9 @@ public final class CarouselScreen implements Screen {
             case OFFLINE, UNKNOWN -> NamedTextColor.RED;
         };
         String label = live.status() == ServerStatus.UNKNOWN ? "Checking..." : live.label();
-        Component line = Component.text("● " + label, color);
+        Component line = Component.text("\u25CF " + label, color);
         if (live.status().joinable()) {
-            line = line.append(Component.text("  ·  " + live.players() + " playing", NamedTextColor.GRAY));
+            line = line.append(Component.text("  \u00B7  " + live.players() + " playing", NamedTextColor.GRAY));
         }
         return line;
     }
