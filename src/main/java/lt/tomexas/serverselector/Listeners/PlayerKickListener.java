@@ -13,7 +13,7 @@ public class PlayerKickListener implements Listener {
     @EventHandler
     public void onKick(PlayerKickEvent event) {
         if (event.getCause() == PlayerKickEvent.Cause.SELF_INTERACTION
-                && plugin.getCursorManager().isAttached(event.getPlayer())) {
+                && plugin.getSelectorManager().isAttached(event.getPlayer())) {
             event.setCancelled(true);
         }
     }

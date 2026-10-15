@@ -1,36 +1,26 @@
 package lt.tomexas.serverselector.Listeners;
 
 import lt.tomexas.serverselector.Main;
-import lt.tomexas.serverselector.Utils.HudManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
-import java.util.List;
-
 public class PlayerItemHeldListener implements Listener {
 
     private final Main plugin = Main.getInstance();
-    private final HudManager hudManager = plugin.getHudManager();
 
+    // Scrolling the hotbar rotates the carousel
     @EventHandler
     public void onPlayerItemHeld(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        int currentIndex = hudManager.getPlayerServerIndex().get(player);
-        List<String> servers = plugin.getServers();
+        if (!plugin.getSelectorManager().isAttached(player)) return;
         event.setCancelled(true);
 
-        if (plugin.getPlayerQueueStatus().getOrDefault(player.getUniqueId(), false)) return;
-
-        if (event.getNewSlot() > event.getPreviousSlot()) {
-            currentIndex = (currentIndex + 1) % servers.size();
-        } else {
-            currentIndex = (currentIndex - 1 + servers.size()) % servers.size();
-        }
-
-        hudManager.getPlayerServerIndex().put(player, currentIndex);
-        plugin.getCursorManager().snapTo(player, currentIndex);
+        int step = event.getNewSlot() - event.getPreviousSlot();
+        // Scrolling past slot 8 wraps to 0 and the other way round
+        if (step > 4) step = -1;
+        else if (step < -4) step = 1;
+        plugin.getSelectorManager().scroll(player, Integer.signum(step));
     }
-
 }

@@ -13,7 +13,7 @@ public class PlayerDismountListener implements Listener {
     // Keeps players seated while the selector is open, otherwise their rotation stops reaching the server
     @EventHandler
     public void onDismount(EntityDismountEvent event) {
-        if (event.getEntity() instanceof Player player && plugin.getCursorManager().isAttached(player)) {
+        if (event.getEntity() instanceof Player player && plugin.getSelectorManager().isAttached(player)) {
             event.setCancelled(true);
         }
     }

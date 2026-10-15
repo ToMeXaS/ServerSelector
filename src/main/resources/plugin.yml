@@ -8,3 +8,5 @@ website: tomexas.lt
 depend:
   - ProtocolLib
   - ajQueue
+softdepend:
+  - Nexo
