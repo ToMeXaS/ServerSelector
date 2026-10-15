@@ -23,15 +23,27 @@ public final class QueuePanel implements Screen {
     private static final double PANEL_DEPTH = 1.95;
     private static final double CONTENT_DEPTH = 1.93;
     private static final double FRONT_DEPTH = 1.92;
-    private static final float DIM_SCALE = 4.0f;            // 64x36 px -> 6.4 x 3.6, covers the view
-    private static final float PANEL_SCALE = 0.4f;          // 180x140 px -> 1.8 x 1.4
-    private static final double BAR_Y = -0.38;
+    private static final float DIM_SCALE = 6.5f;            // 64x36 px -> 10.4 x 5.9, covers the view up to FOV 110
+    private static final float PANEL_SCALE = 0.55f;         // 180x140 px -> 2.475 x 1.925
+    private static final double BAR_Y = -0.52;
     private static final double BAR_WIDTH = 1.2;
     private static final float BAR_SCALE = 1.0f;            // 48x8 px -> 1.2 x 0.2
-    private static final double BUTTON_Y = -0.56;
+    private static final float BAR_THICKNESS = 0.6f;        // 48x8 px at 1.0 x 0.6 -> 1.2 x 0.12
+    private static final double BUTTON_Y = -0.74;
     private static final float BUTTON_SCALE = 0.35f;        // 96x32 px -> 0.84 x 0.28
     private static final Rect LEAVE = new Rect(0, BUTTON_Y, 0.84, 0.28);
     private static final int BAR_TICKS = 10;
+
+    private static final double HEADING_Y = 0.78;
+    private static final float HEADING_SCALE = 0.45f;
+    private static final double ICON_Y = 0.52;
+    private static final float ICON_SCALE = 0.4f;
+    private static final double NAME_Y = 0.22;
+    private static final float NAME_SCALE = 0.8f;
+    private static final double POSITION_Y = -0.08;
+    private static final float POSITION_SCALE = 1.4f;
+    private static final double TOTAL_Y = -0.36;
+    private static final float TOTAL_SCALE = 0.5f;
 
     private final Plugin plugin;
     private final Player player;
@@ -57,12 +69,13 @@ public final class QueuePanel implements Screen {
         this.onLeave = onLeave;
         dim = UiElement.glyph(plugin, player, plane, Glyph.DIM, 0, 0, DIM_DEPTH, DIM_SCALE);
         panel = UiElement.glyph(plugin, player, plane, Glyph.PANEL, 0, 0, PANEL_DEPTH, PANEL_SCALE);
-        heading = text("QUEUED FOR", NamedTextColor.GRAY, false, 0.55, 0.5f);
-        icon = UiElement.spawn(plugin, player, plane, server.icon().component(), 1, 0, 0.36, CONTENT_DEPTH, 0.4f);
-        name = text(server.displayName(), NamedTextColor.WHITE, true, 0.17, 0.8f);
-        position = text("#\u2026", NamedTextColor.GOLD, true, -0.05, 1.6f);
-        total = text("Joining queue...", NamedTextColor.GRAY, false, -0.24, 0.5f);
+        heading = text("QUEUED FOR", NamedTextColor.GRAY, false, HEADING_Y, HEADING_SCALE);
+        icon = UiElement.spawn(plugin, player, plane, server.icon().component(), 1, 0, ICON_Y, CONTENT_DEPTH, ICON_SCALE);
+        name = text(server.displayName(), NamedTextColor.WHITE, true, NAME_Y, NAME_SCALE);
+        position = text("#\u2026", NamedTextColor.GOLD, true, POSITION_Y, POSITION_SCALE);
+        total = text("Joining queue...", NamedTextColor.GRAY, false, TOTAL_Y, TOTAL_SCALE);
         track = UiElement.glyph(plugin, player, plane, Glyph.BAR_TRACK, 0, BAR_Y, CONTENT_DEPTH, BAR_SCALE);
+        track.layout(0, BAR_Y, BAR_SCALE, BAR_THICKNESS, 0);
         fill = UiElement.glyph(plugin, player, plane, Glyph.BAR_FILL, -BAR_WIDTH / 2, BAR_Y, FRONT_DEPTH, BAR_SCALE);
         button = UiElement.glyph(plugin, player, plane, Glyph.BUTTON, 0, BUTTON_Y, CONTENT_DEPTH, BUTTON_SCALE);
         label = UiElement.spawn(plugin, player, plane,
@@ -109,7 +122,7 @@ public final class QueuePanel implements Screen {
 
     private void setProgress(double progress) {
         // The fill grows from the left end of the track
-        fill.layout(-BAR_WIDTH / 2 + BAR_WIDTH * progress / 2, BAR_Y, (float) (BAR_SCALE * progress), BAR_SCALE, BAR_TICKS);
+        fill.layout(-BAR_WIDTH / 2 + BAR_WIDTH * progress / 2, BAR_Y, (float) (BAR_SCALE * progress), BAR_THICKNESS, BAR_TICKS);
         fill.visible(progress > 0);
     }
 
