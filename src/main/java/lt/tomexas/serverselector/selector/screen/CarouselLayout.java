@@ -5,8 +5,8 @@ public final class CarouselLayout {
 
     public enum Slot { CENTER, LEFT, RIGHT, HIDDEN_LEFT, HIDDEN_RIGHT }
 
-    public static final double SIDE_X = 1.15;
-    public static final double HIDDEN_X = 1.8;
+    public static final double SIDE_X = 1.45;
+    public static final double HIDDEN_X = 1.9;
     public static final float SIDE_SCALE = 0.7f;
     public static final float HIDDEN_SCALE = 0.4f;
 

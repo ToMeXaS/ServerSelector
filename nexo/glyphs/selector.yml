@@ -30,14 +30,14 @@ selector_arrow_right:
 
 selector_card:
   texture: selector/card
-  ascent: 67
-  height: 128
+  ascent: 75
+  height: 144
   char: "\uE304"
 
 selector_card_selected:
   texture: selector/card_selected
-  ascent: 67
-  height: 128
+  ascent: 75
+  height: 144
   char: "\uE305"
 
 selector_panel:

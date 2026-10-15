@@ -24,19 +24,19 @@ public final class CarouselScreen implements Screen {
 
     private static final double DEPTH = 2.0;
     private static final double CONTENT_DEPTH = 1.99;
-    private static final double CARD_Y = -0.05;
-    private static final double CARD_WIDTH = 1.3;
-    private static final double CARD_HEIGHT = 1.6;
-    private static final float CARD_SCALE = 0.5f;          // 104x128 px glyph -> 1.3 x 1.6
-    private static final double ICON_Y = 0.45;
+    private static final double CARD_Y = -0.1;
+    private static final double CARD_WIDTH = 1.6;
+    private static final double CARD_HEIGHT = 1.8;
+    private static final float CARD_SCALE = 0.5f;          // 128x144 px glyph -> 1.6 x 1.8
+    private static final double ICON_Y = 0.5;
     private static final float ICON_SCALE = 0.6f;
     private static final double NAME_Y = 0.1;
     private static final float NAME_SCALE = 0.9f;
     private static final double STATUS_Y = -0.15;
-    private static final float STATUS_SCALE = 0.55f;
+    private static final float STATUS_SCALE = 0.5f;
     private static final double DESCRIPTION_Y = -0.5;
-    private static final float DESCRIPTION_SCALE = 0.5f;
-    private static final double ARROW_X = 1.85;
+    private static final float DESCRIPTION_SCALE = 0.42f;
+    private static final double ARROW_X = 2.2;
     private static final float ARROW_SCALE = 0.9f;         // 24 px glyph -> 0.54
     private static final double ARROW_SIZE = 0.54;
     private static final float ARROW_HOVER_SCALE = 1.05f;
