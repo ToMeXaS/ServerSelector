@@ -7,6 +7,8 @@ Needs Pillow:       python -m pip install -r tools/requirements.txt
 Writes:
   nexo/glyphs/selector.yml
   nexo/pack/assets/minecraft/textures/selector/*.png
+  nexo/pack/assets/minecraft/textures/gui/sprites/hud/{crosshair,experience_bar_background,
+    experience_bar_progress,locator_bar_background}.png
   nexo/LICENSE-kenney.txt
 Regenerate rather than editing the outputs: the plugin's Glyph enum and layout assume these
 characters and sizes.
@@ -95,6 +97,11 @@ GLYPHS = [
     ("icon_star", 0xE318, 32, lambda: kenney("icons", "PNG/White/2x/star.png")),
 ]
 
+# Vanilla HUD sprites hidden on the lobby: the selector has its own cursor and nothing to level
+HIDDEN_HUD = [("crosshair", 15, 15), ("experience_bar_background", 182, 5),
+              ("experience_bar_progress", 182, 5), ("locator_bar_background", 182, 5)]
+HUD = NEXO / "pack" / "assets" / "minecraft" / "textures" / "gui" / "sprites" / "hud"
+
 
 def config_text():
     lines = [
@@ -121,6 +128,9 @@ def main():
     TEXTURES.mkdir(parents=True, exist_ok=True)
     for name, _, _, make in GLYPHS:
         make().save(TEXTURES / f"{name}.png")
+    HUD.mkdir(parents=True, exist_ok=True)
+    for name, w, h in HIDDEN_HUD:
+        solid(w, h, (0, 0, 0, 0)).save(HUD / f"{name}.png")
     (NEXO / "glyphs").mkdir(parents=True, exist_ok=True)
     (NEXO / "glyphs" / "selector.yml").write_text(config_text(), encoding="utf-8", newline="\n")
     with load_pack("cursor") as archive:
