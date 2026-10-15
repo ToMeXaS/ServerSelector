@@ -35,6 +35,6 @@ public enum ServerStatus {
     /** Strips legacy colour codes and MiniMessage tags. */
     public static String plainText(String raw) {
         if (raw == null) return "";
-        return raw.replaceAll("(?i)[&§][0-9a-fk-orx]", "").replaceAll("<[^>]+>", "").trim();
+        return raw.replaceAll("(?i)[&\u00A7][0-9a-fk-orx]", "").replaceAll("<[^>]+>", "").trim();
     }
 }
