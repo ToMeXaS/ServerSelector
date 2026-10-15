@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public record SelectorConfig(String title, List<ServerEntry> servers) {
+public record SelectorConfig(String title, List<ServerEntry> servers, double cursorBoundsX, double cursorBoundsY) {
 
     private static final String DEFAULT_TITLE = "CHOOSE YOUR REALM";
+    private static final double DEFAULT_CURSOR_BOUNDS_X = 3.55;
+    private static final double DEFAULT_CURSOR_BOUNDS_Y = 2.0;
 
     public static SelectorConfig from(ConfigurationSection root, Logger logger) {
         List<ServerEntry> servers = new ArrayList<>();
@@ -28,6 +30,8 @@ public record SelectorConfig(String title, List<ServerEntry> servers) {
                         List.copyOf(server.getStringList("description"))));
             }
         }
-        return new SelectorConfig(root.getString("title", DEFAULT_TITLE), List.copyOf(servers));
+        return new SelectorConfig(root.getString("title", DEFAULT_TITLE), List.copyOf(servers),
+                root.getDouble("cursor-bounds.x", DEFAULT_CURSOR_BOUNDS_X),
+                root.getDouble("cursor-bounds.y", DEFAULT_CURSOR_BOUNDS_Y));
     }
 }

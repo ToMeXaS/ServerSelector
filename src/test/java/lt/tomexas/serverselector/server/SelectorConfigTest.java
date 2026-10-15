@@ -56,4 +56,22 @@ class SelectorConfigTest {
     void noServersSectionMeansNoServers() {
         assertTrue(parse("title: x").servers().isEmpty());
     }
+
+    @Test
+    void readsCursorBoundsFromConfig() {
+        SelectorConfig config = parse("""
+                cursor-bounds:
+                  x: 2.49
+                  y: 1.4
+                """);
+        assertEquals(2.49, config.cursorBoundsX());
+        assertEquals(1.4, config.cursorBoundsY());
+    }
+
+    @Test
+    void fallsBackForMissingCursorBounds() {
+        SelectorConfig config = parse("title: x");
+        assertEquals(3.55, config.cursorBoundsX());
+        assertEquals(2.0, config.cursorBoundsY());
+    }
 }

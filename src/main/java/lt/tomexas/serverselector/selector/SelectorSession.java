@@ -33,8 +33,6 @@ final class SelectorSession {
     private static final long CLICK_DELAY_MS = 250;
     // ajQueue may not report the new queue straight away; don't close the panel in the meantime
     private static final long JOIN_GRACE_MS = 3000;
-    private static final double BOUNDS_X = 2.2;
-    private static final double BOUNDS_Y = 1.25;
     private static final double CURSOR_DEPTH = 1.8;
     private static final float CURSOR_SCALE = 1.0f;          // 16 px glyph -> 0.4
     // The cursor glyph's tip is its top-left corner, so its centre sits down and to the right of the cursor point
@@ -56,6 +54,8 @@ final class SelectorSession {
     private final UiElement title;
     private final CarouselScreen carousel;
     private final UiElement cursor;
+    private final double boundsX;
+    private final double boundsY;
     private QueuePanel queuePanel;
     private ServerEntry queuedFor;
     private double cursorX;
@@ -72,6 +72,8 @@ final class SelectorSession {
         this.player = player;
         this.registry = registry;
         this.queue = queue;
+        this.boundsX = config.cursorBoundsX();
+        this.boundsY = config.cursorBoundsY();
 
         Location eye = camera.getEyeLocation();
         this.plane = new UiPlane(eye);
@@ -98,9 +100,9 @@ final class SelectorSession {
     void tick() {
         if (closed) return;
         Location location = player.getLocation();
-        double x = UiMath.clamp(UiMath.project(UiMath.wrapDegrees(location.getYaw() - plane.yaw())), -BOUNDS_X, BOUNDS_X);
+        double x = UiMath.clamp(UiMath.project(UiMath.wrapDegrees(location.getYaw() - plane.yaw())), -boundsX, boundsX);
         // Pitch is positive when looking down
-        double y = UiMath.clamp(UiMath.project(-location.getPitch()), -BOUNDS_Y, BOUNDS_Y);
+        double y = UiMath.clamp(UiMath.project(-location.getPitch()), -boundsY, boundsY);
         if (x != cursorX || y != cursorY) {
             cursorX = x;
             cursorY = y;
