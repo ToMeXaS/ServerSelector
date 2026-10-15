@@ -1,5 +1,6 @@
 package lt.tomexas.serverselector.selector.ui;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.TextComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,14 @@ class GlyphTest {
         assertEquals("\uE300", ((TextComponent) Glyph.CURSOR_ARROW.component()).content());
         Glyph.setNexoAvailable(false);
         assertEquals("\u2196", ((TextComponent) Glyph.CURSOR_ARROW.component()).content());
+    }
+
+    @Test
+    void componentUsesNexoDefaultFontWhenNexoIsAvailable() {
+        Glyph.setNexoAvailable(true);
+        assertEquals(Key.key("nexo", "default"), Glyph.CURSOR_ARROW.component().font());
+        Glyph.setNexoAvailable(false);
+        assertNull(Glyph.CURSOR_ARROW.component().font());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package lt.tomexas.serverselector.selector.ui;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -31,6 +32,9 @@ public enum Glyph {
     ICON_TORCH("selector_icon_torch", '\uE317', "\u2600"),
     ICON_STAR("selector_icon_star", '\uE318', "\u2605");
 
+    // Nexo puts glyphs in its own font (its Glyphs.default_font setting), not minecraft:default
+    private static final Key FONT = Key.key("nexo", "default");
+
     private static boolean nexoAvailable;
 
     private final String id;
@@ -53,7 +57,10 @@ public enum Glyph {
 
     /** The glyph as white text, so the texture is drawn untinted. */
     public Component component() {
-        return Component.text(nexoAvailable ? String.valueOf(character) : fallback, NamedTextColor.WHITE);
+        if (nexoAvailable) {
+            return Component.text(String.valueOf(character), NamedTextColor.WHITE).font(FONT);
+        }
+        return Component.text(fallback, NamedTextColor.WHITE);
     }
 
     public static void setNexoAvailable(boolean available) {
