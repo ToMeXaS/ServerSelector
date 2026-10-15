@@ -1,0 +1,19 @@
+# Title shown above the carousel.
+title: "CHOOSE YOUR REALM"
+
+# Servers shown in the selector, in this order. Keys must match the proxy's server names.
+# icon is a glyph id from nexo/glyphs/selector.yml: selector_icon_sword, _pickaxe, _axe, _bow,
+# _hammer, _wand, _bomb, _torch or _star.
+servers:
+  survival:
+    display-name: "Survival"
+    icon: selector_icon_sword
+    description:
+      - "Classic survival with land"
+      - "claims, jobs and an economy."
+  creative:
+    display-name: "Creative"
+    icon: selector_icon_pickaxe
+    description:
+      - "Big plots, WorldEdit and"
+      - "weekly build contests."
