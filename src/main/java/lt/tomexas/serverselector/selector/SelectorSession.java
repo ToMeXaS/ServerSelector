@@ -33,8 +33,8 @@ final class SelectorSession {
     // The cursor glyph's tip is its top-left corner, so its centre sits down and to the right of the cursor point
     private static final double CURSOR_TIP_X = 0.2;
     private static final double CURSOR_TIP_Y = -0.2;
-    private static final double VIGNETTE_DEPTH = 2.4;
-    private static final float VIGNETTE_SCALE = 1.6f;        // 256x144 px -> 10.2 x 5.8, wider than any FOV
+    private static final double TINT_DEPTH = 2.4;
+    private static final float TINT_SCALE = 6.0f;             // 64x36 px -> 9.6 x 5.4, covers the screen
     private static final double TITLE_MARGIN = 0.3; // Distance from the top screen edge to the title's centre
     private static final float TITLE_SCALE = 1.4f;
     // Gliding over two ticks smooths the 20-per-second updates at the cost of ~1 tick extra lag
@@ -44,7 +44,7 @@ final class SelectorSession {
     private final Player player;
     private final UiPlane plane;
     private final Pig seat;
-    private final UiElement vignette;
+    private final UiElement tint;
     private final UiElement title;
     private final CarouselScreen carousel;
     private final UiElement cursor;
@@ -72,7 +72,7 @@ final class SelectorSession {
         seat.addPassenger(player);
         lockCamera();
 
-        vignette = UiElement.glyph(plugin, player, plane, Glyph.VIGNETTE, 0, 0, VIGNETTE_DEPTH, VIGNETTE_SCALE);
+        tint = UiElement.glyph(plugin, player, plane, Glyph.TINT, 0, 0, TINT_DEPTH, TINT_SCALE);
         title = UiElement.spawn(plugin, player, plane,
                 Component.text(config.title(), NamedTextColor.GOLD, TextDecoration.BOLD), 1,
                 0, config.cursorBoundsY() - TITLE_MARGIN, UiMath.REFERENCE_DISTANCE, TITLE_SCALE);
@@ -123,7 +123,7 @@ final class SelectorSession {
     void close() {
         closed = true;
         carousel.close();
-        vignette.remove();
+        tint.remove();
         title.remove();
         cursor.remove();
         seat.eject();

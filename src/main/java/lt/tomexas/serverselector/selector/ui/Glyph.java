@@ -11,7 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public enum Glyph {
     CURSOR_ARROW("selector_cursor_arrow", '\uE300', "\u2196"),
     CURSOR_HAND("selector_cursor_hand", '\uE301', "\u261B"),
-    VIGNETTE("selector_vignette", '\uE308', ""),
+    TINT("selector_tint", '\uE308', ""),
     PLAY("selector_play", '\uE30D', ""),
     PLAY_HOVER("selector_play_hover", '\uE30E', ""),
     PLAY_DISABLED("selector_play_disabled", '\uE30F', ""),

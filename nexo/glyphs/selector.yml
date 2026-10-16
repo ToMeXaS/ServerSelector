@@ -16,10 +16,10 @@ selector_cursor_hand:
   height: 16
   char: "\uE301"
 
-selector_vignette:
-  texture: selector/vignette
-  ascent: 75
-  height: 144
+selector_tint:
+  texture: selector/tint
+  ascent: 21
+  height: 36
   char: "\uE308"
 
 selector_play:
