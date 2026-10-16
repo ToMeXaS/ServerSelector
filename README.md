@@ -5,6 +5,8 @@ Players join the lobby and see a carousel of server cards in front of a locked c
 with the mouse, pick a server by clicking a side card or scrolling, and press **PLAY** to be sent there.
 No client mods are needed; the art ships in a resource pack served by [Nexo](https://nexomc.com).
 
+![The selector in game](assets/selector.gif)
+
 ## How it works
 
 - Each player rides an invisible, silent pig that is also their camera. A riding client keeps sending its
