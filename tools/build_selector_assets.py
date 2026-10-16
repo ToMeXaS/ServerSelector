@@ -64,10 +64,24 @@ def solid(width, height, color):
     return Image.new("RGBA", (width, height), color)
 
 
+def aligned_cursor(image, shift):
+    # Pastes `image` onto a fresh 32x32 canvas offset by `shift`, then marks pixel (31, 0) with
+    # near-invisible alpha so Minecraft measures every cursor glyph as the same 32px-wide texture
+    # (it measures to the rightmost non-transparent column). This lets both the arrow and the hand
+    # glyph share one tip offset in SelectorSession instead of needing per-glyph constants.
+    canvas = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    canvas.paste(image, shift, image)
+    canvas.putpixel((31, 0), (0, 0, 0, 1))
+    return canvas
+
+
 # (name, char code, rendered height in px, image factory)
 GLYPHS = [
-    ("cursor_arrow", 0xE300, 16, lambda: kenney("cursor", "PNG/Outline/Default/pointer_b.png")),
-    ("cursor_hand", 0xE301, 16, lambda: kenney("cursor", "PNG/Outline/Default/hand_point.png")),
+    # Shifted so the arrow's tip texel (8,6) and the hand's fingertip texel (9,2) both land on (10,4).
+    ("cursor_arrow", 0xE300, 16,
+     lambda: aligned_cursor(kenney("cursor", "PNG/Outline/Default/pointer_b.png"), (2, -2))),
+    ("cursor_hand", 0xE301, 16,
+     lambda: aligned_cursor(kenney("cursor", "PNG/Outline/Default/hand_point.png"), (1, 2))),
     ("tint", 0xE308, 36, lambda: solid(64, 36, (*TINT_COLOR, round(255 * TINT_OPACITY)))),
     ("play", 0xE30D, 40, lambda: kenney("ui", "PNG/Green/Default/button_rectangle_depth_flat.png")),
     ("play_hover", 0xE30E, 40, lambda: kenney("ui", "PNG/Green/Default/button_rectangle_depth_gradient.png")),
