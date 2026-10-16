@@ -8,6 +8,7 @@ import lt.tomexas.serverselector.Queue.QueueTracker;
 import lt.tomexas.serverselector.selector.screen.CarouselScreen;
 import lt.tomexas.serverselector.selector.screen.QueuePanel;
 import lt.tomexas.serverselector.selector.screen.Screen;
+import lt.tomexas.serverselector.selector.ui.CursorTracker;
 import lt.tomexas.serverselector.selector.ui.Glyph;
 import lt.tomexas.serverselector.selector.ui.UiElement;
 import lt.tomexas.serverselector.selector.ui.UiMath;
@@ -54,8 +55,7 @@ final class SelectorSession {
     private final UiElement title;
     private final CarouselScreen carousel;
     private final UiElement cursor;
-    private final double boundsX;
-    private final double boundsY;
+    private final CursorTracker tracker;
     private QueuePanel queuePanel;
     private ServerEntry queuedFor;
     private double cursorX;
@@ -72,8 +72,6 @@ final class SelectorSession {
         this.player = player;
         this.registry = registry;
         this.queue = queue;
-        this.boundsX = config.cursorBoundsX();
-        this.boundsY = config.cursorBoundsY();
 
         Location eye = camera.getEyeLocation();
         this.plane = new UiPlane(eye);
@@ -95,14 +93,16 @@ final class SelectorSession {
         carousel = new CarouselScreen(plugin, player, plane, registry, selected, this::joinQueue);
         cursor = UiElement.glyph(plugin, player, plane, Glyph.CURSOR_ARROW,
                 CURSOR_TIP_X * CURSOR_SCALE, CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_DEPTH, CURSOR_SCALE);
+        // The player is teleported to pitch 0 at open, so anchor the tracker there
+        tracker = new CursorTracker(config.cursorBoundsX(), config.cursorBoundsY(), plane.yaw(), 0);
     }
 
     void tick() {
         if (closed) return;
         Location location = player.getLocation();
-        double x = UiMath.clamp(UiMath.project(UiMath.wrapDegrees(location.getYaw() - plane.yaw())), -boundsX, boundsX);
-        // Pitch is positive when looking down
-        double y = UiMath.clamp(UiMath.project(-location.getPitch()), -boundsY, boundsY);
+        tracker.update(location.getYaw(), location.getPitch());
+        double x = tracker.x();
+        double y = tracker.y();
         if (x != cursorX || y != cursorY) {
             cursorX = x;
             cursorY = y;
