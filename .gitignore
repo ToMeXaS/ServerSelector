@@ -37,3 +37,6 @@ testserver/
 
 # Downloaded asset packs
 tools/.cache/
+
+# Superpowers specs and plans stay local
+docs/superpowers/
