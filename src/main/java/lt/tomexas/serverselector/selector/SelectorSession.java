@@ -30,9 +30,12 @@ final class SelectorSession {
     private static final long CLICK_DELAY_MS = 250;
     private static final double CURSOR_DEPTH = 1.8;
     private static final float CURSOR_SCALE = 1.0f;          // 16 px glyph -> 0.4
-    // The cursor glyph's tip is its top-left corner, so its centre sits down and to the right of the cursor point
-    private static final double CURSOR_TIP_X = 0.2;
-    private static final double CURSOR_TIP_Y = -0.2;
+    // Per-glyph offsets that move the glyph element so its drawn tip (texture's transparent margin and Minecraft's
+    // +1px glyph-centring both included) lands on the cursor point, instead of the glyph's own centre.
+    private static final double ARROW_TIP_X = 0.056;
+    private static final double ARROW_TIP_Y = -0.144;
+    private static final double HAND_TIP_X = 0.0875;
+    private static final double HAND_TIP_Y = -0.194;
     private static final double TINT_DEPTH = 2.4;
     private static final float TINT_SCALE = 6.0f;             // 64x36 px -> 9.6 x 5.4, covers the screen
     private static final double TITLE_MARGIN = 0.3; // Distance from the top screen edge to the title's centre
@@ -80,7 +83,7 @@ final class SelectorSession {
         carousel = new CarouselScreen(plugin, player, plane, registry, selected, config.cursorBoundsY(),
                 this::connect);
         cursor = UiElement.glyph(plugin, player, plane, Glyph.CURSOR_ARROW,
-                CURSOR_TIP_X * CURSOR_SCALE, CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_DEPTH, CURSOR_SCALE);
+                ARROW_TIP_X * CURSOR_SCALE, ARROW_TIP_Y * CURSOR_SCALE, CURSOR_DEPTH, CURSOR_SCALE);
         // The player is teleported to pitch 0 at open, so anchor the tracker there
         tracker = new CursorTracker(config.cursorBoundsX(), config.cursorBoundsY(), plane.yaw(), 0);
     }
@@ -91,10 +94,12 @@ final class SelectorSession {
         tracker.update(location.getYaw(), location.getPitch());
         double x = tracker.x();
         double y = tracker.y();
+        double tipX = pointing ? HAND_TIP_X : ARROW_TIP_X;
+        double tipY = pointing ? HAND_TIP_Y : ARROW_TIP_Y;
         if (x != cursorX || y != cursorY) {
             cursorX = x;
             cursorY = y;
-            cursor.moveTo(x + CURSOR_TIP_X * CURSOR_SCALE, y + CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_SCALE, CURSOR_MOVE_TICKS);
+            cursor.moveTo(x + tipX * CURSOR_SCALE, y + tipY * CURSOR_SCALE, CURSOR_SCALE, CURSOR_MOVE_TICKS);
         }
 
         carousel.tick();
@@ -102,6 +107,10 @@ final class SelectorSession {
         if (clickable != pointing) {
             pointing = clickable;
             cursor.text((clickable ? Glyph.CURSOR_HAND : Glyph.CURSOR_ARROW).component());
+            // Reposition immediately with the new glyph's offset so the hotspot doesn't jump when the glyph changes
+            double newTipX = clickable ? HAND_TIP_X : ARROW_TIP_X;
+            double newTipY = clickable ? HAND_TIP_Y : ARROW_TIP_Y;
+            cursor.moveTo(cursorX + newTipX * CURSOR_SCALE, cursorY + newTipY * CURSOR_SCALE, CURSOR_SCALE, 0);
         }
     }
 
