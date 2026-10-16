@@ -44,6 +44,8 @@ final class SelectorSession {
     private static final double TITLE_Y = 1.15;
     private static final float TITLE_SCALE = 1.4f;
     private static final int QUEUE_POLL_TICKS = 20;
+    // Gliding over two ticks smooths the 20-per-second updates at the cost of ~1 tick extra lag
+    private static final int CURSOR_MOVE_TICKS = 2;
 
     private final Plugin plugin;
     private final Player player;
@@ -106,7 +108,7 @@ final class SelectorSession {
         if (x != cursorX || y != cursorY) {
             cursorX = x;
             cursorY = y;
-            cursor.moveTo(x + CURSOR_TIP_X * CURSOR_SCALE, y + CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_SCALE, 1);
+            cursor.moveTo(x + CURSOR_TIP_X * CURSOR_SCALE, y + CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_SCALE, CURSOR_MOVE_TICKS);
         }
 
         carousel.tick();
