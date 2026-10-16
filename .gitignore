@@ -37,3 +37,6 @@ testserver/
 
 # Downloaded asset packs
 tools/.cache/
+
+# Patched from the local Minecraft client jar (Mojang code); regenerate with tools/build_selector_assets.py
+nexo/pack/assets/minecraft/shaders/
