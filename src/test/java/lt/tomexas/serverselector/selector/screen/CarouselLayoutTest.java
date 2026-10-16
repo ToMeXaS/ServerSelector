@@ -44,12 +44,24 @@ class CarouselLayoutTest {
 
     @Test
     void slotGeometry() {
-        assertEquals(0.0, CarouselLayout.x(Slot.CENTER));
-        assertEquals(-CarouselLayout.SIDE_X, CarouselLayout.x(Slot.LEFT));
-        assertEquals(CarouselLayout.HIDDEN_X, CarouselLayout.x(Slot.HIDDEN_RIGHT));
         assertEquals(1.0f, CarouselLayout.scale(Slot.CENTER));
         assertEquals(CarouselLayout.SIDE_SCALE, CarouselLayout.scale(Slot.RIGHT));
         assertTrue(CarouselLayout.visible(Slot.LEFT));
         assertFalse(CarouselLayout.visible(Slot.HIDDEN_LEFT));
+    }
+
+    // SIDE_SCALE is a float, so allow for its rounding
+    private static final double EPSILON = 1e-6;
+
+    @Test
+    void sideCardsSitAGapBeyondTheCentreCardsEdge() {
+        // 1.6 / 2 + 0.2 + 2.0 * 0.7 / 2
+        assertEquals(1.7, CarouselLayout.sideX(1.6, 2.0), EPSILON);
+        assertEquals(2.8 / 2 + 0.2 + 1.6 * 0.7 / 2, CarouselLayout.sideX(2.8, 1.6), EPSILON);
+    }
+
+    @Test
+    void hiddenCardsWaitWellPastTheCentreCard() {
+        assertEquals(4.0, CarouselLayout.hiddenX(1.6), EPSILON);
     }
 }

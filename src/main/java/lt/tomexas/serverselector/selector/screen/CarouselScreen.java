@@ -1,9 +1,12 @@
 package lt.tomexas.serverselector.selector.screen;
 
 import lt.tomexas.serverselector.selector.screen.CarouselLayout.Slot;
+import lt.tomexas.serverselector.selector.ui.CardArt;
 import lt.tomexas.serverselector.selector.ui.Glyph;
 import lt.tomexas.serverselector.selector.ui.Rect;
+import lt.tomexas.serverselector.selector.ui.TextWidth;
 import lt.tomexas.serverselector.selector.ui.UiElement;
+import lt.tomexas.serverselector.selector.ui.UiMath;
 import lt.tomexas.serverselector.selector.ui.UiPlane;
 import lt.tomexas.serverselector.server.ServerEntry;
 import lt.tomexas.serverselector.server.ServerRegistry;
@@ -24,18 +27,23 @@ public final class CarouselScreen implements Screen {
 
     private static final double DEPTH = 2.0;
     private static final double CONTENT_DEPTH = 1.99;
-    private static final double CARD_Y = -0.1;
-    private static final double CARD_WIDTH = 1.6;
-    private static final double CARD_HEIGHT = 1.8;
-    private static final float CARD_SCALE = 0.5f;          // 128x144 px glyph -> 1.6 x 1.8
-    private static final double ICON_Y = 0.5;
+    // Every card hangs from the same top edge, so cards of different heights line up
+    private static final double CARD_TOP = 0.9;
+    // Content positions, measured down from the card's top edge at full size
+    private static final double ICON_DOWN = 0.4;
     private static final float ICON_SCALE = 0.6f;
-    private static final double NAME_Y = 0.1;
+    private static final double NAME_DOWN = 0.85;
     private static final float NAME_SCALE = 0.9f;
-    private static final double STATUS_Y = -0.15;
+    private static final double STATUS_DOWN = 1.08;
     private static final float STATUS_SCALE = 0.5f;
-    private static final double DESCRIPTION_Y = -0.5;
+    private static final double DESCRIPTION_DOWN = 1.25;
     private static final float DESCRIPTION_SCALE = 0.42f;
+    private static final double DESCRIPTION_LINE = 10 * UiMath.PIXEL * DESCRIPTION_SCALE;
+    // Room under the description: bottom padding plus the art's 3D lip
+    private static final double BOTTOM_PADDING = 0.2 + 0.075;
+    private static final double SIDE_PADDING = 0.15;
+    // Widest the status line can get, so a card never resizes as its player count changes
+    private static final String WIDEST_STATUS = "\u25CF Whitelisted  \u00B7  999 playing";
     private static final float CENTER_HOVER_GROW = 1.04f;
     private static final float SIDE_HOVER_GROW = 1.08f;
     private static final int SLIDE_TICKS = 6;
@@ -45,11 +53,13 @@ public final class CarouselScreen implements Screen {
     private static final double SHAKE = 0.06;
     private static final int SHAKE_TICKS = 7;
     private static final int STATUS_REFRESH_TICKS = 20;
-    private static final double PLAY_Y = -1.2;
+    // Gap between the bottom of the screen and the PLAY button's centre
+    private static final double PLAY_MARGIN = 0.3;
     private static final float PLAY_SCALE = 0.35f;          // 120x40 px glyph -> 1.05 x 0.35
+    private static final double PLAY_WIDTH = 1.05;
+    private static final double PLAY_HEIGHT = 0.35;
     private static final float PLAY_LABEL_SCALE = 0.6f;
     private static final double PLAY_LABEL_DEPTH = 1.98;
-    private static final Rect PLAY = new Rect(0, PLAY_Y, 1.05, 0.35);
 
     private static final int NONE = -1;
     private static final int PLAY_BUTTON = -4;
@@ -62,14 +72,16 @@ public final class CarouselScreen implements Screen {
     private final List<Card> cards = new ArrayList<>();
     private final UiElement playButton;
     private final UiElement playLabel;
+    private final Rect play;
     private int selected;
     private int hovered = NONE;
     private boolean dimmed;
     private int shakeTicks;
     private int ticks;
 
+    /** {@code screenBottom} is how far below the centre the screen ends, in units (the cursor's y-bound). */
     public CarouselScreen(Plugin plugin, Player player, UiPlane plane, ServerRegistry registry, int selected,
-                          Consumer<ServerEntry> onJoin) {
+                          double screenBottom, Consumer<ServerEntry> onJoin) {
         this.plugin = plugin;
         this.player = player;
         this.plane = plane;
@@ -78,13 +90,19 @@ public final class CarouselScreen implements Screen {
 
         List<ServerEntry> servers = registry.servers();
         this.selected = servers.isEmpty() ? 0 : CarouselLayout.wrap(selected, servers.size());
+        // Sizes first: where a card sits depends on how wide the centre card is
+        List<CardArt.Size> sizes = servers.stream().map(CarouselScreen::cardSize).toList();
+        double centerWidth = servers.isEmpty() ? 0 : sizes.get(this.selected).width();
         for (int i = 0; i < servers.size(); i++) {
-            cards.add(new Card(servers.get(i), CarouselLayout.slot(i, this.selected, servers.size())));
+            cards.add(new Card(servers.get(i), sizes.get(i), CarouselLayout.slot(i, this.selected, servers.size()),
+                    centerWidth));
         }
 
-        playButton = UiElement.glyph(plugin, player, plane, Glyph.PLAY, 0, PLAY_Y, CONTENT_DEPTH, PLAY_SCALE);
+        double playY = -screenBottom + PLAY_MARGIN;
+        play = new Rect(0, playY, PLAY_WIDTH, PLAY_HEIGHT);
+        playButton = UiElement.glyph(plugin, player, plane, Glyph.PLAY, 0, playY, CONTENT_DEPTH, PLAY_SCALE);
         playLabel = UiElement.spawn(plugin, player, plane, Component.text("PLAY", NamedTextColor.WHITE, TextDecoration.BOLD),
-                1, 0, PLAY_Y, PLAY_LABEL_DEPTH, PLAY_LABEL_SCALE);
+                1, 0, playY, PLAY_LABEL_DEPTH, PLAY_LABEL_SCALE);
         playLabel.shadow(true);
         boolean hasServers = !servers.isEmpty();
         playButton.visible(hasServers);
@@ -178,7 +196,7 @@ public final class CarouselScreen implements Screen {
 
     private int targetAt(double x, double y) {
         if (cards.isEmpty()) return NONE;
-        if (PLAY.contains(x, y)) return PLAY_BUTTON;
+        if (play.contains(x, y)) return PLAY_BUTTON;
         // The centre card is drawn over the side cards, so it wins where they overlap
         if (cards.get(selected).rect().contains(x, y)) return selected;
         for (int i = 0; i < cards.size(); i++) {
@@ -207,6 +225,33 @@ public final class CarouselScreen implements Screen {
         playLabel.text(Component.text("PLAY", labelColor, TextDecoration.BOLD));
     }
 
+    /** The smallest card art the server's name, status and description fit on. */
+    private static CardArt.Size cardSize(ServerEntry server) {
+        double width = textWidth(server.displayName(), true, NAME_SCALE);
+        width = Math.max(width, textWidth(WIDEST_STATUS, false, STATUS_SCALE));
+        for (String line : server.description()) width = Math.max(width, textWidth(line, false, DESCRIPTION_SCALE));
+        double height = DESCRIPTION_DOWN + descriptionLines(server) * DESCRIPTION_LINE + BOTTOM_PADDING;
+        return CardArt.fit(width + 2 * SIDE_PADDING, height);
+    }
+
+    private static double textWidth(String text, boolean bold, float scale) {
+        return TextWidth.of(text, bold) * UiMath.PIXEL * scale;
+    }
+
+    private static int descriptionLines(ServerEntry server) {
+        return Math.max(1, server.description().size());
+    }
+
+    private static double slotX(Slot slot, double centerWidth, double width) {
+        return switch (slot) {
+            case CENTER -> 0.0;
+            case LEFT -> -CarouselLayout.sideX(centerWidth, width);
+            case RIGHT -> CarouselLayout.sideX(centerWidth, width);
+            case HIDDEN_LEFT -> -CarouselLayout.hiddenX(centerWidth);
+            case HIDDEN_RIGHT -> CarouselLayout.hiddenX(centerWidth);
+        };
+    }
+
     private Component statusLine(ServerEntry server) {
         ServerRegistry.Live live = registry.live(server.id());
         NamedTextColor color = switch (live.status()) {
@@ -225,6 +270,13 @@ public final class CarouselScreen implements Screen {
     private final class Card {
 
         private final ServerEntry server;
+        private final CardArt.Size size;
+        private final double centerY;
+        // Content offsets from the card's centre at full size; side cards scale them about that centre
+        private final double iconOffset;
+        private final double nameOffset;
+        private final double statusOffset;
+        private final double descriptionOffset;
         private final UiElement background;
         private final UiElement icon;
         private final UiElement name;
@@ -232,43 +284,55 @@ public final class CarouselScreen implements Screen {
         private final UiElement description;
         private Slot slot;
 
-        private Card(ServerEntry server, Slot slot) {
+        private Card(ServerEntry server, CardArt.Size size, Slot slot, double centerWidth) {
             this.server = server;
+            this.size = size;
             this.slot = slot;
-            double x = CarouselLayout.x(slot);
+            centerY = CARD_TOP - size.height() / 2;
+            int lines = descriptionLines(server);
+            iconOffset = CARD_TOP - ICON_DOWN - centerY;
+            nameOffset = CARD_TOP - NAME_DOWN - centerY;
+            statusOffset = CARD_TOP - STATUS_DOWN - centerY;
+            descriptionOffset = CARD_TOP - DESCRIPTION_DOWN - lines * DESCRIPTION_LINE / 2 - centerY;
+
+            // The card list is still being built, so the centre card's width is passed in
+            double x = slotX(slot, centerWidth, size.width());
             float s = CarouselLayout.scale(slot);
-            background = UiElement.glyph(plugin, player, plane, slot == Slot.CENTER ? Glyph.CARD_SELECTED : Glyph.CARD,
-                    x, CARD_Y, DEPTH, CARD_SCALE * s);
+            background = UiElement.spawn(plugin, player, plane, CardArt.component(size, slot == Slot.CENTER), 1,
+                    x, centerY, DEPTH, CardArt.PIXEL_SCALE * s);
             icon = UiElement.spawn(plugin, player, plane, server.icon().component(), 1,
-                    x, CARD_Y + ICON_Y * s, CONTENT_DEPTH, ICON_SCALE * s);
+                    x, centerY + iconOffset * s, CONTENT_DEPTH, ICON_SCALE * s);
             name = UiElement.spawn(plugin, player, plane,
                     Component.text(server.displayName(), NamedTextColor.WHITE, TextDecoration.BOLD), 1,
-                    x, CARD_Y + NAME_Y * s, CONTENT_DEPTH, NAME_SCALE * s);
+                    x, centerY + nameOffset * s, CONTENT_DEPTH, NAME_SCALE * s);
             status = UiElement.spawn(plugin, player, plane, statusLine(server), 1,
-                    x, CARD_Y + STATUS_Y * s, CONTENT_DEPTH, STATUS_SCALE * s);
+                    x, centerY + statusOffset * s, CONTENT_DEPTH, STATUS_SCALE * s);
             description = UiElement.spawn(plugin, player, plane,
-                    Component.text(String.join("\n", server.description()), NamedTextColor.GRAY),
-                    Math.max(1, server.description().size()),
-                    x, CARD_Y + DESCRIPTION_Y * s, CONTENT_DEPTH, DESCRIPTION_SCALE * s);
+                    Component.text(String.join("\n", server.description()), NamedTextColor.GRAY), lines,
+                    x, centerY + descriptionOffset * s, CONTENT_DEPTH, DESCRIPTION_SCALE * s);
             name.shadow(true);
             status.shadow(true);
             description.shadow(true);
-            place(0, 0);
+            style(0, false, s, x);
         }
 
         private void place(int ticks, double shake) {
             boolean center = slot == Slot.CENTER;
-            boolean shown = CarouselLayout.visible(slot);
             boolean hover = !dimmed && hovered == cards.indexOf(this);
             float s = CarouselLayout.scale(slot) * (hover ? (center ? CENTER_HOVER_GROW : SIDE_HOVER_GROW) : 1f);
-            double x = CarouselLayout.x(slot) + shake;
+            style(ticks, hover, s, x() + shake);
+        }
 
-            background.text((center ? Glyph.CARD_SELECTED : Glyph.CARD).component());
-            background.moveTo(x, CARD_Y, CARD_SCALE * s, ticks);
-            icon.moveTo(x, CARD_Y + ICON_Y * s, ICON_SCALE * s, ticks);
-            name.moveTo(x, CARD_Y + NAME_Y * s, NAME_SCALE * s, ticks);
-            status.moveTo(x, CARD_Y + STATUS_Y * s, STATUS_SCALE * s, ticks);
-            description.moveTo(x, CARD_Y + DESCRIPTION_Y * s, DESCRIPTION_SCALE * s, ticks);
+        private void style(int ticks, boolean hover, float s, double x) {
+            boolean center = slot == Slot.CENTER;
+            boolean shown = CarouselLayout.visible(slot);
+
+            background.text(CardArt.component(size, center));
+            background.moveTo(x, centerY, CardArt.PIXEL_SCALE * s, ticks);
+            icon.moveTo(x, centerY + iconOffset * s, ICON_SCALE * s, ticks);
+            name.moveTo(x, centerY + nameOffset * s, NAME_SCALE * s, ticks);
+            status.moveTo(x, centerY + statusOffset * s, STATUS_SCALE * s, ticks);
+            description.moveTo(x, centerY + descriptionOffset * s, DESCRIPTION_SCALE * s, ticks);
 
             background.visible(shown);
             icon.visible(shown);
@@ -280,13 +344,17 @@ public final class CarouselScreen implements Screen {
             for (UiElement element : List.of(background, icon, name, status, description)) element.opacity(alpha);
         }
 
+        private double x() {
+            return slotX(slot, cards.get(selected).size.width(), size.width());
+        }
+
         private void refreshStatus() {
             status.text(statusLine(server));
         }
 
         private Rect rect() {
             float s = CarouselLayout.scale(slot);
-            return new Rect(CarouselLayout.x(slot), CARD_Y, CARD_WIDTH * s, CARD_HEIGHT * s);
+            return new Rect(x(), centerY, size.width() * s, size.height() * s);
         }
 
         private void remove() {

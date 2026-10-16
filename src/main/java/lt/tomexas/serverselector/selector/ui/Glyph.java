@@ -11,8 +11,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public enum Glyph {
     CURSOR_ARROW("selector_cursor_arrow", '\uE300', "\u2196"),
     CURSOR_HAND("selector_cursor_hand", '\uE301', "\u261B"),
-    CARD("selector_card", '\uE304', ""),
-    CARD_SELECTED("selector_card_selected", '\uE305', ""),
     PANEL("selector_panel", '\uE306', ""),
     DIM("selector_dim", '\uE307', ""),
     VIGNETTE("selector_vignette", '\uE308', ""),
@@ -58,6 +56,11 @@ public enum Glyph {
 
     /** The glyph as white text, so the texture is drawn untinted. */
     public Component component() {
+        return glyphText(character, fallback);
+    }
+
+    /** A glyph char in Nexo's font, or the fallback text when the pack is missing. White, so it is untinted. */
+    static Component glyphText(char character, String fallback) {
         if (nexoAvailable) {
             return Component.text(String.valueOf(character), NamedTextColor.WHITE).font(FONT);
         }

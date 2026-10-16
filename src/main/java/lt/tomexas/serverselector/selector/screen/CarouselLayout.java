@@ -5,8 +5,10 @@ public final class CarouselLayout {
 
     public enum Slot { CENTER, LEFT, RIGHT, HIDDEN_LEFT, HIDDEN_RIGHT }
 
-    public static final double SIDE_X = 1.45;
-    public static final double HIDDEN_X = 1.9;
+    /** Space between the centre card's edge and a side card's edge, in units. */
+    public static final double GAP = 0.2;
+    // Hidden cards wait this far past the gap, off to the side, so they slide in from outside
+    private static final double HIDDEN_OFFSET = 3.0;
     public static final float SIDE_SCALE = 0.7f;
     public static final float HIDDEN_SCALE = 0.4f;
 
@@ -28,14 +30,14 @@ public final class CarouselLayout {
         return offset < 0 ? Slot.HIDDEN_LEFT : Slot.HIDDEN_RIGHT;
     }
 
-    public static double x(Slot slot) {
-        return switch (slot) {
-            case CENTER -> 0.0;
-            case LEFT -> -SIDE_X;
-            case RIGHT -> SIDE_X;
-            case HIDDEN_LEFT -> -HIDDEN_X;
-            case HIDDEN_RIGHT -> HIDDEN_X;
-        };
+    /** Distance from the middle to a side card's centre, given both cards' full-size widths. */
+    public static double sideX(double centerWidth, double sideWidth) {
+        return centerWidth / 2 + GAP + sideWidth * SIDE_SCALE / 2;
+    }
+
+    /** Distance from the middle to where hidden cards wait. */
+    public static double hiddenX(double centerWidth) {
+        return centerWidth / 2 + GAP + HIDDEN_OFFSET;
     }
 
     public static float scale(Slot slot) {

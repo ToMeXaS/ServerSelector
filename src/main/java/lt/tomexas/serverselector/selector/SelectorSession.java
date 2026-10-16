@@ -92,7 +92,8 @@ final class SelectorSession {
                 Component.text(config.title(), NamedTextColor.GOLD, TextDecoration.BOLD), 1,
                 0, TITLE_Y, UiMath.REFERENCE_DISTANCE, TITLE_SCALE);
         title.shadow(true);
-        carousel = new CarouselScreen(plugin, player, plane, registry, selected, this::joinQueue);
+        carousel = new CarouselScreen(plugin, player, plane, registry, selected, config.cursorBoundsY(),
+                this::joinQueue);
         cursor = UiElement.glyph(plugin, player, plane, Glyph.CURSOR_ARROW,
                 CURSOR_TIP_X * CURSOR_SCALE, CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_DEPTH, CURSOR_SCALE);
         // The player is teleported to pitch 0 at open, so anchor the tracker there
