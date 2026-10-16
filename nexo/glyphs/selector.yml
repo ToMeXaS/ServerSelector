@@ -82,6 +82,24 @@ selector_bar_fill:
   height: 8
   char: "\uE30C"
 
+selector_play:
+  texture: selector/play
+  ascent: 23
+  height: 40
+  char: "\uE30D"
+
+selector_play_hover:
+  texture: selector/play_hover
+  ascent: 23
+  height: 40
+  char: "\uE30E"
+
+selector_play_disabled:
+  texture: selector/play_disabled
+  ascent: 23
+  height: 40
+  char: "\uE30F"
+
 selector_icon_sword:
   texture: selector/icon_sword
   ascent: 19
