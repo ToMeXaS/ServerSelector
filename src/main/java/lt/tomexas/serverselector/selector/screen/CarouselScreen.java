@@ -338,7 +338,7 @@ public final class CarouselScreen implements Screen {
             icon.visible(shown);
             name.visible(shown);
             status.visible(shown && center);
-            description.visible(shown && center);
+            description.visible(shown);
 
             int alpha = dimmed ? DIM_ALPHA : (center || hover ? 255 : SIDE_ALPHA);
             for (UiElement element : List.of(background, icon, name, status, description)) element.opacity(alpha);
