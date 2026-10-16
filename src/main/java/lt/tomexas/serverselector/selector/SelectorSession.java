@@ -41,7 +41,7 @@ final class SelectorSession {
     private static final double CURSOR_TIP_Y = -0.2;
     private static final double VIGNETTE_DEPTH = 2.4;
     private static final float VIGNETTE_SCALE = 1.6f;        // 256x144 px -> 10.2 x 5.8, wider than any FOV
-    private static final double TITLE_Y = 1.15;
+    private static final double TITLE_MARGIN = 0.3; // Distance from the top screen edge to the title's centre
     private static final float TITLE_SCALE = 1.4f;
     private static final int QUEUE_POLL_TICKS = 20;
     // Gliding over two ticks smooths the 20-per-second updates at the cost of ~1 tick extra lag
@@ -90,7 +90,7 @@ final class SelectorSession {
         vignette = UiElement.glyph(plugin, player, plane, Glyph.VIGNETTE, 0, 0, VIGNETTE_DEPTH, VIGNETTE_SCALE);
         title = UiElement.spawn(plugin, player, plane,
                 Component.text(config.title(), NamedTextColor.GOLD, TextDecoration.BOLD), 1,
-                0, TITLE_Y, UiMath.REFERENCE_DISTANCE, TITLE_SCALE);
+                0, config.cursorBoundsY() - TITLE_MARGIN, UiMath.REFERENCE_DISTANCE, TITLE_SCALE);
         title.shadow(true);
         carousel = new CarouselScreen(plugin, player, plane, registry, selected, config.cursorBoundsY(),
                 this::joinQueue);
