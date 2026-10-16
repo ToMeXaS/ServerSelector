@@ -54,6 +54,15 @@ def panel(width, height, fill, border, border_width, radius):
     return image
 
 
+def button_card(width, height, fill, border, lip):
+    # Kenney button style: the lip colour peeks out under the face as the button's 3D edge
+    image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.rounded_rectangle((0, 0, width - 1, height - 1), radius=8, fill=lip)
+    draw.rounded_rectangle((0, 0, width - 1, height - 1 - CARD_LIP), radius=8, fill=fill, outline=border, width=2)
+    return image
+
+
 def solid(width, height, color):
     return Image.new("RGBA", (width, height), color)
 
@@ -75,8 +84,6 @@ def vignette(width, height):
 GLYPHS = [
     ("cursor_arrow", 0xE300, 16, lambda: kenney("cursor", "PNG/Outline/Default/pointer_b.png")),
     ("cursor_hand", 0xE301, 16, lambda: kenney("cursor", "PNG/Outline/Default/hand_point.png")),
-    ("card", 0xE304, 144, lambda: panel(128, 144, (20, 24, 34, 200), (58, 67, 86, 255), 2, 8)),
-    ("card_selected", 0xE305, 144, lambda: panel(128, 144, (40, 32, 20, 215), (255, 180, 58, 255), 3, 8)),
     ("panel", 0xE306, 140, lambda: panel(180, 140, (20, 26, 38, 235), (255, 180, 58, 255), 2, 8)),
     ("dim", 0xE307, 36, lambda: solid(64, 36, (0, 0, 0, 150))),
     ("vignette", 0xE308, 144, lambda: vignette(256, 144)),
@@ -97,6 +104,21 @@ GLYPHS = [
     ("icon_torch", 0xE317, 32, lambda: kenney("cursor", "PNG/Outline/Default/tool_torch.png")),
     ("icon_star", 0xE318, 32, lambda: kenney("icons", "PNG/White/2x/star.png")),
 ]
+
+# Cards come pre-rendered in a grid of sizes so the plugin can pick the smallest one that fits its text.
+# char = 0xE320 + style * 12 + width index * 3 + height index; the plugin's CardArt relies on this.
+CARD_LIP = 6
+CARD_WIDTHS = (128, 160, 192, 224)
+CARD_HEIGHTS = (144, 164, 184)
+CARD_STYLES = (
+    ("normal", (24, 28, 38, 220), (90, 100, 120, 255), (52, 58, 72, 255)),
+    ("selected", (26, 40, 28, 225), (115, 205, 75, 255), (62, 128, 38, 255)),
+)
+for _style, (_label, _fill, _border, _lip) in enumerate(CARD_STYLES):
+    for _wi, _w in enumerate(CARD_WIDTHS):
+        for _hi, _h in enumerate(CARD_HEIGHTS):
+            GLYPHS.append((f"card_{_label}_{_w}x{_h}", 0xE320 + _style * 12 + _wi * 3 + _hi, _h,
+                           lambda w=_w, h=_h, f=_fill, b=_border, l=_lip: button_card(w, h, f, b, l)))
 
 # Vanilla HUD sprites hidden on the lobby: the selector has its own cursor and nothing to level
 HIDDEN_HUD = [("crosshair", 15, 15), ("experience_bar_background", 182, 5),

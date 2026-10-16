@@ -16,18 +16,6 @@ selector_cursor_hand:
   height: 16
   char: "\uE301"
 
-selector_card:
-  texture: selector/card
-  ascent: 75
-  height: 144
-  char: "\uE304"
-
-selector_card_selected:
-  texture: selector/card_selected
-  ascent: 75
-  height: 144
-  char: "\uE305"
-
 selector_panel:
   texture: selector/panel
   ascent: 73
@@ -141,3 +129,147 @@ selector_icon_star:
   ascent: 19
   height: 32
   char: "\uE318"
+
+selector_card_normal_128x144:
+  texture: selector/card_normal_128x144
+  ascent: 75
+  height: 144
+  char: "\uE320"
+
+selector_card_normal_128x164:
+  texture: selector/card_normal_128x164
+  ascent: 85
+  height: 164
+  char: "\uE321"
+
+selector_card_normal_128x184:
+  texture: selector/card_normal_128x184
+  ascent: 95
+  height: 184
+  char: "\uE322"
+
+selector_card_normal_160x144:
+  texture: selector/card_normal_160x144
+  ascent: 75
+  height: 144
+  char: "\uE323"
+
+selector_card_normal_160x164:
+  texture: selector/card_normal_160x164
+  ascent: 85
+  height: 164
+  char: "\uE324"
+
+selector_card_normal_160x184:
+  texture: selector/card_normal_160x184
+  ascent: 95
+  height: 184
+  char: "\uE325"
+
+selector_card_normal_192x144:
+  texture: selector/card_normal_192x144
+  ascent: 75
+  height: 144
+  char: "\uE326"
+
+selector_card_normal_192x164:
+  texture: selector/card_normal_192x164
+  ascent: 85
+  height: 164
+  char: "\uE327"
+
+selector_card_normal_192x184:
+  texture: selector/card_normal_192x184
+  ascent: 95
+  height: 184
+  char: "\uE328"
+
+selector_card_normal_224x144:
+  texture: selector/card_normal_224x144
+  ascent: 75
+  height: 144
+  char: "\uE329"
+
+selector_card_normal_224x164:
+  texture: selector/card_normal_224x164
+  ascent: 85
+  height: 164
+  char: "\uE32A"
+
+selector_card_normal_224x184:
+  texture: selector/card_normal_224x184
+  ascent: 95
+  height: 184
+  char: "\uE32B"
+
+selector_card_selected_128x144:
+  texture: selector/card_selected_128x144
+  ascent: 75
+  height: 144
+  char: "\uE32C"
+
+selector_card_selected_128x164:
+  texture: selector/card_selected_128x164
+  ascent: 85
+  height: 164
+  char: "\uE32D"
+
+selector_card_selected_128x184:
+  texture: selector/card_selected_128x184
+  ascent: 95
+  height: 184
+  char: "\uE32E"
+
+selector_card_selected_160x144:
+  texture: selector/card_selected_160x144
+  ascent: 75
+  height: 144
+  char: "\uE32F"
+
+selector_card_selected_160x164:
+  texture: selector/card_selected_160x164
+  ascent: 85
+  height: 164
+  char: "\uE330"
+
+selector_card_selected_160x184:
+  texture: selector/card_selected_160x184
+  ascent: 95
+  height: 184
+  char: "\uE331"
+
+selector_card_selected_192x144:
+  texture: selector/card_selected_192x144
+  ascent: 75
+  height: 144
+  char: "\uE332"
+
+selector_card_selected_192x164:
+  texture: selector/card_selected_192x164
+  ascent: 85
+  height: 164
+  char: "\uE333"
+
+selector_card_selected_192x184:
+  texture: selector/card_selected_192x184
+  ascent: 95
+  height: 184
+  char: "\uE334"
+
+selector_card_selected_224x144:
+  texture: selector/card_selected_224x144
+  ascent: 75
+  height: 144
+  char: "\uE335"
+
+selector_card_selected_224x164:
+  texture: selector/card_selected_224x164
+  ascent: 85
+  height: 164
+  char: "\uE336"
+
+selector_card_selected_224x184:
+  texture: selector/card_selected_224x184
+  ascent: 95
+  height: 184
+  char: "\uE337"
