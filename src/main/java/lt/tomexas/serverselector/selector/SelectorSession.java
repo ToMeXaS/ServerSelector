@@ -162,6 +162,8 @@ final class SelectorSession {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("Connect");
         out.writeUTF(server.id());
+        // The lobby pack (selector art, hidden crosshair, tint) must not follow the player to other servers
+        player.removeResourcePacks();
         player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 }
