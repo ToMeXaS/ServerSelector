@@ -26,7 +26,7 @@ TEXTURES = NEXO / "pack" / "assets" / "minecraft" / "textures" / "selector"
 CACHE = ROOT / "tools" / ".cache"
 
 # Full-screen tint over the lobby world behind the selector; tune colour and opacity here
-TINT_COLOR = (0x88, 0x88, 0x88)
+TINT_COLOR = (0x33, 0x33, 0x33)
 TINT_OPACITY = 0.4
 
 PACKS = {
