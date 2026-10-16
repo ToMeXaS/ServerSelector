@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 public record SelectorConfig(String title, List<ServerEntry> servers, double cursorBoundsX, double cursorBoundsY) {
 
     private static final String DEFAULT_TITLE = "CHOOSE YOUR REALM";
-    private static final double DEFAULT_CURSOR_BOUNDS_X = 3.55;
-    private static final double DEFAULT_CURSOR_BOUNDS_Y = 2.0;
+    private static final double DEFAULT_CURSOR_BOUNDS_X = 3.9;
+    private static final double DEFAULT_CURSOR_BOUNDS_Y = 2.05;
 
     public static SelectorConfig from(ConfigurationSection root, Logger logger) {
         List<ServerEntry> servers = new ArrayList<>();

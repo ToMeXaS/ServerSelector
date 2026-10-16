@@ -71,7 +71,7 @@ class SelectorConfigTest {
     @Test
     void fallsBackForMissingCursorBounds() {
         SelectorConfig config = parse("title: x");
-        assertEquals(3.55, config.cursorBoundsX());
-        assertEquals(2.0, config.cursorBoundsY());
+        assertEquals(3.9, config.cursorBoundsX());
+        assertEquals(2.05, config.cursorBoundsY());
     }
 }

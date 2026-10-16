@@ -1,11 +1,12 @@
 # Title shown above the carousel.
 title: "CHOOSE YOUR REALM"
 
-# How far the cursor can move from the centre, in plane units. Set these to the edge of the screen:
-# y = 2 * tan(FOV / 2), x = y * width / height. FOV 90 on 16:9 gives 3.55 x 2.0; FOV 70 gives 2.49 x 1.4.
+# How far the cursor can move from the centre, in plane units, i.e. half the screen in plane units:
+# y = 2 * tan(FOV / 2), x = y * window width / window height.
+# FOV 90: 16:9 gives 3.55 x 2.0, a 1920x1009 window gives 3.9 x 2.05. FOV 70 on 16:9 gives 2.49 x 1.4.
 cursor-bounds:
-  x: 3.55
-  y: 2.0
+  x: 3.9
+  y: 2.05
 
 # Servers shown in the selector, in this order. Keys must match the proxy's server names.
 # icon is a glyph id from nexo/glyphs/selector.yml: selector_icon_sword, _pickaxe, _axe, _bow,
