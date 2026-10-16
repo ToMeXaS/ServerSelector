@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ProxyPollerTest {
 
@@ -29,7 +30,27 @@ class ProxyPollerTest {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServers");
         out.writeUTF("lobby, survival");
-        new ProxyPoller(null, registry).handle(out.toByteArray());
+        ProxyPoller poller = new ProxyPoller(null, registry);
+        poller.handle(out.toByteArray());
         assertEquals(0, registry.live("survival").players());
+        assertNull(poller.address("survival"));
+    }
+
+    @Test
+    void serverIpRepliesAreRememberedCaseInsensitively() {
+        ProxyPoller poller = new ProxyPoller(null, new ServerRegistry(List.of()));
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("ServerIP");
+        out.writeUTF("Survival");
+        out.writeUTF("10.0.0.5");
+        out.writeShort(40000); // above Short.MAX_VALUE: must be read unsigned
+        poller.handle(out.toByteArray());
+        assertEquals("10.0.0.5", poller.address("survival").getHostString());
+        assertEquals(40000, poller.address("SURVIVAL").getPort());
+    }
+
+    @Test
+    void unknownServersHaveNoAddress() {
+        assertNull(new ProxyPoller(null, new ServerRegistry(List.of())).address("survival"));
     }
 }
