@@ -6,16 +6,13 @@ import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import us.ajg0702.queue.api.spigot.AjQueueSpigotAPI;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-/** Keeps the registry's player counts (BungeeCord channel) and statuses (ajQueue) fresh. */
+/** Keeps the registry's player counts fresh over the BungeeCord channel. */
 public final class ProxyPoller {
 
     private static final long INTERVAL_TICKS = 100;
-    private static final long TIMEOUT_MS = 3000;
 
     private final Plugin plugin;
     private final ServerRegistry registry;
@@ -39,7 +36,7 @@ public final class ProxyPoller {
     }
 
     private void poll() {
-        // Plugin messages and ajQueue's API both travel over a player's connection
+        // Plugin messages travel over a player's connection
         Player carrier = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
         if (carrier == null) return;
 
@@ -50,23 +47,5 @@ public final class ProxyPoller {
             out.writeUTF(id);
             carrier.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
-
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            for (String id : ids) {
-                ServerStatus status;
-                String label;
-                try {
-                    String raw = AjQueueSpigotAPI.getInstance().getServerStatusString(id).get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-                    status = ServerStatus.fromAjQueue(raw);
-                    label = ServerStatus.plainText(raw);
-                } catch (Exception e) {
-                    status = ServerStatus.OFFLINE;
-                    label = "Offline";
-                }
-                ServerStatus result = status;
-                String resultLabel = label;
-                Bukkit.getScheduler().runTask(plugin, () -> registry.updateStatus(id, result, resultLabel));
-            }
-        });
     }
 }

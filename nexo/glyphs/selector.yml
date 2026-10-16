@@ -16,47 +16,11 @@ selector_cursor_hand:
   height: 16
   char: "\uE301"
 
-selector_panel:
-  texture: selector/panel
-  ascent: 73
-  height: 140
-  char: "\uE306"
-
-selector_dim:
-  texture: selector/dim
-  ascent: 21
-  height: 36
-  char: "\uE307"
-
 selector_vignette:
   texture: selector/vignette
   ascent: 75
   height: 144
   char: "\uE308"
-
-selector_button:
-  texture: selector/button
-  ascent: 19
-  height: 32
-  char: "\uE309"
-
-selector_button_hover:
-  texture: selector/button_hover
-  ascent: 19
-  height: 32
-  char: "\uE30A"
-
-selector_bar_track:
-  texture: selector/bar_track
-  ascent: 7
-  height: 8
-  char: "\uE30B"
-
-selector_bar_fill:
-  texture: selector/bar_fill
-  ascent: 7
-  height: 8
-  char: "\uE30C"
 
 selector_play:
   texture: selector/play

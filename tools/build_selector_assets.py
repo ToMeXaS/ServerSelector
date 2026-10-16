@@ -61,13 +61,6 @@ def kenney(pack, member):
         return Image.open(io.BytesIO(archive.read(member))).convert("RGBA")
 
 
-def panel(width, height, fill, border, border_width, radius):
-    image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    ImageDraw.Draw(image).rounded_rectangle(
-        (0, 0, width - 1, height - 1), radius=radius, fill=fill, outline=border, width=border_width)
-    return image
-
-
 def button_card(width, height, fill, border, lip):
     # Kenney button style: the lip colour peeks out under the face as the button's 3D edge
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -98,13 +91,7 @@ def vignette(width, height):
 GLYPHS = [
     ("cursor_arrow", 0xE300, 16, lambda: kenney("cursor", "PNG/Outline/Default/pointer_b.png")),
     ("cursor_hand", 0xE301, 16, lambda: kenney("cursor", "PNG/Outline/Default/hand_point.png")),
-    ("panel", 0xE306, 140, lambda: panel(180, 140, (20, 26, 38, 235), (255, 180, 58, 255), 2, 8)),
-    ("dim", 0xE307, 36, lambda: solid(64, 36, (0, 0, 0, 150))),
     ("vignette", 0xE308, 144, lambda: vignette(256, 144)),
-    ("button", 0xE309, 32, lambda: kenney("ui", "PNG/Red/Default/button_rectangle_depth_flat.png")),
-    ("button_hover", 0xE30A, 32, lambda: kenney("ui", "PNG/Red/Default/button_rectangle_depth_gradient.png")),
-    ("bar_track", 0xE30B, 8, lambda: kenney("ui", "PNG/Grey/Default/slide_horizontal_grey.png")),
-    ("bar_fill", 0xE30C, 8, lambda: kenney("ui", "PNG/Yellow/Default/slide_horizontal_color.png")),
     ("play", 0xE30D, 40, lambda: kenney("ui", "PNG/Green/Default/button_rectangle_depth_flat.png")),
     ("play_hover", 0xE30E, 40, lambda: kenney("ui", "PNG/Green/Default/button_rectangle_depth_gradient.png")),
     ("play_disabled", 0xE30F, 40, lambda: kenney("ui", "PNG/Grey/Default/button_rectangle_depth_flat.png")),

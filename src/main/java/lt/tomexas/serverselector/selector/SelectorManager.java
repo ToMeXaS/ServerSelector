@@ -1,6 +1,5 @@
 package lt.tomexas.serverselector.selector;
 
-import lt.tomexas.serverselector.Queue.QueueTracker;
 import lt.tomexas.serverselector.server.SelectorConfig;
 import lt.tomexas.serverselector.server.ServerRegistry;
 import org.bukkit.Bukkit;
@@ -21,19 +20,16 @@ public final class SelectorManager {
     private final Supplier<ArmorStand> camera;
     private final SelectorConfig config;
     private final ServerRegistry registry;
-    private final QueueTracker queue;
     private final Map<UUID, SelectorSession> sessions = new HashMap<>();
     // Which server was in the middle when the player last closed the selector
     private final Map<UUID, Integer> lastSelected = new HashMap<>();
     private boolean warnedNoCamera;
 
-    public SelectorManager(Plugin plugin, Supplier<ArmorStand> camera, SelectorConfig config, ServerRegistry registry,
-                           QueueTracker queue) {
+    public SelectorManager(Plugin plugin, Supplier<ArmorStand> camera, SelectorConfig config, ServerRegistry registry) {
         this.plugin = plugin;
         this.camera = camera;
         this.config = config;
         this.registry = registry;
-        this.queue = queue;
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 1L, 1L);
     }
 
@@ -47,7 +43,7 @@ public final class SelectorManager {
             }
             return;
         }
-        sessions.put(player.getUniqueId(), new SelectorSession(plugin, player, stand, config, registry, queue,
+        sessions.put(player.getUniqueId(), new SelectorSession(plugin, player, stand, config, registry,
                 lastSelected.getOrDefault(player.getUniqueId(), 0)));
     }
 

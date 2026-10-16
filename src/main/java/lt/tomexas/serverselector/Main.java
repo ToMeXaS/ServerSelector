@@ -3,7 +3,6 @@ package lt.tomexas.serverselector;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import lt.tomexas.serverselector.Listeners.*;
-import lt.tomexas.serverselector.Queue.QueueTracker;
 import lt.tomexas.serverselector.selector.SelectorManager;
 import lt.tomexas.serverselector.selector.ui.Glyph;
 import lt.tomexas.serverselector.server.ProxyPoller;
@@ -45,7 +44,7 @@ public final class Main extends JavaPlugin implements PluginMessageListener {
 
         SelectorConfig config = SelectorConfig.from(getConfig(), getLogger());
         ServerRegistry registry = new ServerRegistry(config.servers());
-        selectorManager = new SelectorManager(this, this::getArmorStand, config, registry, new QueueTracker(this));
+        selectorManager = new SelectorManager(this, this::getArmorStand, config, registry);
         proxyPoller = new ProxyPoller(this, registry);
         proxyPoller.start();
 

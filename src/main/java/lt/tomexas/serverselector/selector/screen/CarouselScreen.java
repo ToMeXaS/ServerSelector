@@ -10,7 +10,6 @@ import lt.tomexas.serverselector.selector.ui.UiMath;
 import lt.tomexas.serverselector.selector.ui.UiPlane;
 import lt.tomexas.serverselector.server.ServerEntry;
 import lt.tomexas.serverselector.server.ServerRegistry;
-import lt.tomexas.serverselector.server.ServerStatus;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -43,13 +42,12 @@ public final class CarouselScreen implements Screen {
     private static final double BOTTOM_PADDING = 0.2 + 0.075;
     private static final double SIDE_PADDING = 0.15;
     // Widest the status line can get, so a card never resizes as its player count changes
-    private static final String WIDEST_STATUS = "\u25CF Whitelisted  \u00B7  999 playing";
+    private static final String WIDEST_STATUS = "\u25CF Online  \u00B7  999 playing";
     private static final float CENTER_HOVER_GROW = 1.04f;
     private static final float SIDE_HOVER_GROW = 1.08f;
     private static final int SLIDE_TICKS = 6;
     private static final int HOVER_TICKS = 2;
     private static final int SIDE_ALPHA = 150;
-    private static final int DIM_ALPHA = 80;
     private static final double SHAKE = 0.06;
     private static final int SHAKE_TICKS = 7;
     private static final int STATUS_REFRESH_TICKS = 20;
@@ -68,25 +66,24 @@ public final class CarouselScreen implements Screen {
     private final Player player;
     private final UiPlane plane;
     private final ServerRegistry registry;
-    private final Consumer<ServerEntry> onJoin;
+    private final Consumer<ServerEntry> onPlay;
     private final List<Card> cards = new ArrayList<>();
     private final UiElement playButton;
     private final UiElement playLabel;
     private final Rect play;
     private int selected;
     private int hovered = NONE;
-    private boolean dimmed;
     private int shakeTicks;
     private int ticks;
 
     /** {@code screenBottom} is how far below the centre the screen ends, in units (the cursor's y-bound). */
     public CarouselScreen(Plugin plugin, Player player, UiPlane plane, ServerRegistry registry, int selected,
-                          double screenBottom, Consumer<ServerEntry> onJoin) {
+                          double screenBottom, Consumer<ServerEntry> onPlay) {
         this.plugin = plugin;
         this.player = player;
         this.plane = plane;
         this.registry = registry;
-        this.onJoin = onJoin;
+        this.onPlay = onPlay;
 
         List<ServerEntry> servers = registry.servers();
         this.selected = servers.isEmpty() ? 0 : CarouselLayout.wrap(selected, servers.size());
@@ -129,7 +126,7 @@ public final class CarouselScreen implements Screen {
 
     @Override
     public boolean hover(double x, double y) {
-        int target = dimmed ? NONE : targetAt(x, y);
+        int target = targetAt(x, y);
         if (target == hovered) return target != NONE;
         int previous = hovered;
         hovered = target;
@@ -141,26 +138,13 @@ public final class CarouselScreen implements Screen {
 
     @Override
     public void click(double x, double y) {
-        if (dimmed) return;
         int target = targetAt(x, y);
-        if (target == PLAY_BUTTON) join();
+        if (target == PLAY_BUTTON) play();
         else if (target >= 0 && target != selected) rotate(CarouselLayout.offset(target, selected, cards.size()));
     }
 
     public void scroll(int direction) {
-        if (!dimmed && cards.size() > 1) rotate(direction);
-    }
-
-    /** Fades the carousel behind an overlay and stops it reacting to the cursor. */
-    public void dim(boolean dimmed) {
-        if (this.dimmed == dimmed) return;
-        this.dimmed = dimmed;
-        hovered = NONE;
-        cards.forEach(card -> card.place(HOVER_TICKS, 0));
-        int alpha = dimmed ? DIM_ALPHA : 255;
-        playButton.opacity(alpha);
-        playLabel.opacity(alpha);
-        stylePlayButton();
+        if (cards.size() > 1) rotate(direction);
     }
 
     @Override
@@ -183,11 +167,11 @@ public final class CarouselScreen implements Screen {
         player.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 0.6f, 1.2f);
     }
 
-    private void join() {
+    private void play() {
         Card card = cards.get(selected);
         if (registry.live(card.server.id()).status().joinable()) {
             player.playSound(player, Sound.UI_BUTTON_CLICK, 0.6f, 1.0f);
-            onJoin.accept(card.server);
+            onPlay.accept(card.server);
         } else {
             shakeTicks = SHAKE_TICKS;
             player.playSound(player, Sound.ENTITY_VILLAGER_NO, 0.6f, 1.0f);
@@ -256,10 +240,13 @@ public final class CarouselScreen implements Screen {
         ServerRegistry.Live live = registry.live(server.id());
         NamedTextColor color = switch (live.status()) {
             case ONLINE -> NamedTextColor.GREEN;
-            case LIMITED -> NamedTextColor.YELLOW;
             case OFFLINE, UNKNOWN -> NamedTextColor.RED;
         };
-        String label = live.status() == ServerStatus.UNKNOWN ? "Checking..." : live.label();
+        String label = switch (live.status()) {
+            case ONLINE -> "Online";
+            case OFFLINE -> "Offline";
+            case UNKNOWN -> "Checking...";
+        };
         Component line = Component.text("\u25CF " + label, color);
         if (live.status().joinable()) {
             line = line.append(Component.text("  \u00B7  " + live.players() + " playing", NamedTextColor.GRAY));
@@ -318,7 +305,7 @@ public final class CarouselScreen implements Screen {
 
         private void place(int ticks, double shake) {
             boolean center = slot == Slot.CENTER;
-            boolean hover = !dimmed && hovered == cards.indexOf(this);
+            boolean hover = hovered == cards.indexOf(this);
             float s = CarouselLayout.scale(slot) * (hover ? (center ? CENTER_HOVER_GROW : SIDE_HOVER_GROW) : 1f);
             style(ticks, hover, s, x() + shake);
         }
@@ -340,7 +327,7 @@ public final class CarouselScreen implements Screen {
             status.visible(shown && center);
             description.visible(shown);
 
-            int alpha = dimmed ? DIM_ALPHA : (center || hover ? 255 : SIDE_ALPHA);
+            int alpha = center || hover ? 255 : SIDE_ALPHA;
             for (UiElement element : List.of(background, icon, name, status, description)) element.opacity(alpha);
         }
 

@@ -3,11 +3,9 @@ package lt.tomexas.serverselector.selector;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
-import lt.tomexas.serverselector.Queue.QueueState;
-import lt.tomexas.serverselector.Queue.QueueTracker;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import lt.tomexas.serverselector.selector.screen.CarouselScreen;
-import lt.tomexas.serverselector.selector.screen.QueuePanel;
-import lt.tomexas.serverselector.selector.screen.Screen;
 import lt.tomexas.serverselector.selector.ui.CursorTracker;
 import lt.tomexas.serverselector.selector.ui.Glyph;
 import lt.tomexas.serverselector.selector.ui.UiElement;
@@ -26,14 +24,10 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
-
-/** One player's open selector: seat, camera, cursor and the active screens. */
+/** One player's open selector: seat, camera, cursor and the carousel. */
 final class SelectorSession {
 
     private static final long CLICK_DELAY_MS = 250;
-    // ajQueue may not report the new queue straight away; don't close the panel in the meantime
-    private static final long JOIN_GRACE_MS = 3000;
     private static final double CURSOR_DEPTH = 1.8;
     private static final float CURSOR_SCALE = 1.0f;          // 16 px glyph -> 0.4
     // The cursor glyph's tip is its top-left corner, so its centre sits down and to the right of the cursor point
@@ -43,14 +37,11 @@ final class SelectorSession {
     private static final float VIGNETTE_SCALE = 1.6f;        // 256x144 px -> 10.2 x 5.8, wider than any FOV
     private static final double TITLE_MARGIN = 0.3; // Distance from the top screen edge to the title's centre
     private static final float TITLE_SCALE = 1.4f;
-    private static final int QUEUE_POLL_TICKS = 20;
     // Gliding over two ticks smooths the 20-per-second updates at the cost of ~1 tick extra lag
     private static final int CURSOR_MOVE_TICKS = 2;
 
     private final Plugin plugin;
     private final Player player;
-    private final ServerRegistry registry;
-    private final QueueTracker queue;
     private final UiPlane plane;
     private final Pig seat;
     private final UiElement vignette;
@@ -58,22 +49,16 @@ final class SelectorSession {
     private final CarouselScreen carousel;
     private final UiElement cursor;
     private final CursorTracker tracker;
-    private QueuePanel queuePanel;
-    private ServerEntry queuedFor;
     private double cursorX;
     private double cursorY;
     private boolean pointing;
     private long lastClick;
-    private long joinPendingUntil;
-    private int ticks;
     private boolean closed;
 
     SelectorSession(Plugin plugin, Player player, ArmorStand camera, SelectorConfig config, ServerRegistry registry,
-                    QueueTracker queue, int selected) {
+                    int selected) {
         this.plugin = plugin;
         this.player = player;
-        this.registry = registry;
-        this.queue = queue;
 
         Location eye = camera.getEyeLocation();
         this.plane = new UiPlane(eye);
@@ -93,7 +78,7 @@ final class SelectorSession {
                 0, config.cursorBoundsY() - TITLE_MARGIN, UiMath.REFERENCE_DISTANCE, TITLE_SCALE);
         title.shadow(true);
         carousel = new CarouselScreen(plugin, player, plane, registry, selected, config.cursorBoundsY(),
-                this::joinQueue);
+                this::connect);
         cursor = UiElement.glyph(plugin, player, plane, Glyph.CURSOR_ARROW,
                 CURSOR_TIP_X * CURSOR_SCALE, CURSOR_TIP_Y * CURSOR_SCALE, CURSOR_DEPTH, CURSOR_SCALE);
         // The player is teleported to pitch 0 at open, so anchor the tracker there
@@ -113,25 +98,22 @@ final class SelectorSession {
         }
 
         carousel.tick();
-        if (queuePanel != null) queuePanel.tick();
-        boolean clickable = activeScreen().hover(cursorX, cursorY);
+        boolean clickable = carousel.hover(cursorX, cursorY);
         if (clickable != pointing) {
             pointing = clickable;
             cursor.text((clickable ? Glyph.CURSOR_HAND : Glyph.CURSOR_ARROW).component());
         }
-
-        if (++ticks % QUEUE_POLL_TICKS == 0) queue.poll(player, this::onQueueState);
     }
 
     void click() {
         long now = System.currentTimeMillis();
         if (now - lastClick < CLICK_DELAY_MS) return;
         lastClick = now;
-        activeScreen().click(cursorX, cursorY);
+        carousel.click(cursorX, cursorY);
     }
 
     void scroll(int direction) {
-        if (queuePanel == null) carousel.scroll(direction);
+        carousel.scroll(direction);
     }
 
     int selectedIndex() {
@@ -140,7 +122,6 @@ final class SelectorSession {
 
     void close() {
         closed = true;
-        if (queuePanel != null) queuePanel.close();
         carousel.close();
         vignette.remove();
         title.remove();
@@ -176,54 +157,11 @@ final class SelectorSession {
         }, 2L);
     }
 
-    private Screen activeScreen() {
-        return queuePanel != null ? queuePanel : carousel;
-    }
-
-    private void joinQueue(ServerEntry server) {
-        queue.join(player, server);
-        joinPendingUntil = System.currentTimeMillis() + JOIN_GRACE_MS;
-        openQueuePanel(server);
-    }
-
-    private void leaveQueue() {
-        if (queuedFor != null) queue.leave(player, queuedFor.id());
-        joinPendingUntil = 0;
-        closeQueuePanel();
-    }
-
-    private void onQueueState(QueueState state) {
-        if (closed) return;
-        if (!state.available()) {
-            if (queuePanel != null) queuePanel.showUnavailable();
-            return;
-        }
-        if (state.inQueue()) {
-            ServerEntry server = registry.entry(state.server());
-            if (server == null && state.server() != null) {
-                server = new ServerEntry(state.server(), state.server(), Glyph.ICON_STAR, List.of());
-            }
-            if (server == null) server = queuedFor;
-            if (server == null) return;
-            if (queuePanel == null || !server.id().equalsIgnoreCase(queuedFor.id())) openQueuePanel(server);
-            queuePanel.update(state);
-        } else if (queuePanel != null && System.currentTimeMillis() > joinPendingUntil) {
-            closeQueuePanel();
-        }
-    }
-
-    private void openQueuePanel(ServerEntry server) {
-        if (queuePanel != null) queuePanel.close();
-        queuedFor = server;
-        carousel.dim(true);
-        queuePanel = new QueuePanel(plugin, player, plane, server, this::leaveQueue);
-    }
-
-    private void closeQueuePanel() {
-        if (queuePanel == null) return;
-        queuePanel.close();
-        queuePanel = null;
-        queuedFor = null;
-        carousel.dim(false);
+    /** Sends the player to the server through the proxy; the session closes when they leave the lobby. */
+    private void connect(ServerEntry server) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Connect");
+        out.writeUTF(server.id());
+        player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 }

@@ -11,16 +11,11 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
-    maven {
-        name = "ajg0702"
-        url = uri("https://repo.ajg0702.us/releases")
-    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly('net.dmulloy2:ProtocolLib:5.4.0')
-    compileOnly("us.ajg0702.queue.api:api:2.9.1")
 
     testImplementation("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     testImplementation(platform('org.junit:junit-bom:5.11.4'))

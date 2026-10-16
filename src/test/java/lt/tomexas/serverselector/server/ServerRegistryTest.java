@@ -23,8 +23,8 @@ class ServerRegistryTest {
     void keepsStatusAndPlayersSeparately() {
         registry.updateStatus("survival", ServerStatus.ONLINE, "Online");
         registry.updatePlayers("survival", 12);
-        registry.updateStatus("survival", ServerStatus.LIMITED, "Full");
-        assertEquals(new ServerRegistry.Live(ServerStatus.LIMITED, "Full", 12), registry.live("survival"));
+        registry.updateStatus("survival", ServerStatus.OFFLINE, "Offline");
+        assertEquals(new ServerRegistry.Live(ServerStatus.OFFLINE, "Offline", 12), registry.live("survival"));
     }
 
     @Test

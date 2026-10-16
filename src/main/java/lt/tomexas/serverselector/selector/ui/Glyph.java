@@ -11,13 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public enum Glyph {
     CURSOR_ARROW("selector_cursor_arrow", '\uE300', "\u2196"),
     CURSOR_HAND("selector_cursor_hand", '\uE301', "\u261B"),
-    PANEL("selector_panel", '\uE306', ""),
-    DIM("selector_dim", '\uE307', ""),
     VIGNETTE("selector_vignette", '\uE308', ""),
-    BUTTON("selector_button", '\uE309', ""),
-    BUTTON_HOVER("selector_button_hover", '\uE30A', ""),
-    BAR_TRACK("selector_bar_track", '\uE30B', ""),
-    BAR_FILL("selector_bar_fill", '\uE30C', ""),
     PLAY("selector_play", '\uE30D', ""),
     PLAY_HOVER("selector_play_hover", '\uE30E', ""),
     PLAY_DISABLED("selector_play_disabled", '\uE30F', ""),
