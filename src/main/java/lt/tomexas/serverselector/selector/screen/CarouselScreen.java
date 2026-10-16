@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** One focused server card in the middle, neighbours at the sides, arrows to rotate. */
+/** One focused server card in the middle, neighbours at the sides. */
 public final class CarouselScreen implements Screen {
 
     private static final double DEPTH = 2.0;
@@ -36,10 +36,6 @@ public final class CarouselScreen implements Screen {
     private static final float STATUS_SCALE = 0.5f;
     private static final double DESCRIPTION_Y = -0.5;
     private static final float DESCRIPTION_SCALE = 0.42f;
-    private static final double ARROW_X = 2.2;
-    private static final float ARROW_SCALE = 0.9f;         // 24 px glyph -> 0.54
-    private static final double ARROW_SIZE = 0.54;
-    private static final float ARROW_HOVER_SCALE = 1.05f;
     private static final float CENTER_HOVER_GROW = 1.04f;
     private static final float SIDE_HOVER_GROW = 1.08f;
     private static final int SLIDE_TICKS = 6;
@@ -56,8 +52,6 @@ public final class CarouselScreen implements Screen {
     private static final Rect PLAY = new Rect(0, PLAY_Y, 1.05, 0.35);
 
     private static final int NONE = -1;
-    private static final int LEFT_ARROW = -2;
-    private static final int RIGHT_ARROW = -3;
     private static final int PLAY_BUTTON = -4;
 
     private final Plugin plugin;
@@ -66,8 +60,6 @@ public final class CarouselScreen implements Screen {
     private final ServerRegistry registry;
     private final Consumer<ServerEntry> onJoin;
     private final List<Card> cards = new ArrayList<>();
-    private final UiElement leftArrow;
-    private final UiElement rightArrow;
     private final UiElement playButton;
     private final UiElement playLabel;
     private int selected;
@@ -89,12 +81,6 @@ public final class CarouselScreen implements Screen {
         for (int i = 0; i < servers.size(); i++) {
             cards.add(new Card(servers.get(i), CarouselLayout.slot(i, this.selected, servers.size())));
         }
-
-        leftArrow = UiElement.glyph(plugin, player, plane, Glyph.ARROW_LEFT, -ARROW_X, CARD_Y, DEPTH, ARROW_SCALE);
-        rightArrow = UiElement.glyph(plugin, player, plane, Glyph.ARROW_RIGHT, ARROW_X, CARD_Y, DEPTH, ARROW_SCALE);
-        boolean arrows = servers.size() > 1;
-        leftArrow.visible(arrows);
-        rightArrow.visible(arrows);
 
         playButton = UiElement.glyph(plugin, player, plane, Glyph.PLAY, 0, PLAY_Y, CONTENT_DEPTH, PLAY_SCALE);
         playLabel = UiElement.spawn(plugin, player, plane, Component.text("PLAY", NamedTextColor.WHITE, TextDecoration.BOLD),
@@ -139,9 +125,7 @@ public final class CarouselScreen implements Screen {
     public void click(double x, double y) {
         if (dimmed) return;
         int target = targetAt(x, y);
-        if (target == LEFT_ARROW) rotate(-1);
-        else if (target == RIGHT_ARROW) rotate(1);
-        else if (target == PLAY_BUTTON) join();
+        if (target == PLAY_BUTTON) join();
         else if (target >= 0 && target != selected) rotate(CarouselLayout.offset(target, selected, cards.size()));
     }
 
@@ -156,20 +140,14 @@ public final class CarouselScreen implements Screen {
         hovered = NONE;
         cards.forEach(card -> card.place(HOVER_TICKS, 0));
         int alpha = dimmed ? DIM_ALPHA : 255;
-        leftArrow.opacity(alpha);
-        rightArrow.opacity(alpha);
         playButton.opacity(alpha);
         playLabel.opacity(alpha);
-        leftArrow.moveTo(-ARROW_X, CARD_Y, ARROW_SCALE, HOVER_TICKS);
-        rightArrow.moveTo(ARROW_X, CARD_Y, ARROW_SCALE, HOVER_TICKS);
         stylePlayButton();
     }
 
     @Override
     public void close() {
         cards.forEach(Card::remove);
-        leftArrow.remove();
-        rightArrow.remove();
         playButton.remove();
         playLabel.remove();
     }
@@ -199,10 +177,6 @@ public final class CarouselScreen implements Screen {
     }
 
     private int targetAt(double x, double y) {
-        if (cards.size() > 1) {
-            if (new Rect(-ARROW_X, CARD_Y, ARROW_SIZE, ARROW_SIZE).contains(x, y)) return LEFT_ARROW;
-            if (new Rect(ARROW_X, CARD_Y, ARROW_SIZE, ARROW_SIZE).contains(x, y)) return RIGHT_ARROW;
-        }
         if (cards.isEmpty()) return NONE;
         if (PLAY.contains(x, y)) return PLAY_BUTTON;
         // The centre card is drawn over the side cards, so it wins where they overlap
@@ -215,11 +189,7 @@ public final class CarouselScreen implements Screen {
     }
 
     private void restyle(int target) {
-        if (target == LEFT_ARROW) {
-            leftArrow.moveTo(-ARROW_X, CARD_Y, hovered == LEFT_ARROW ? ARROW_HOVER_SCALE : ARROW_SCALE, HOVER_TICKS);
-        } else if (target == RIGHT_ARROW) {
-            rightArrow.moveTo(ARROW_X, CARD_Y, hovered == RIGHT_ARROW ? ARROW_HOVER_SCALE : ARROW_SCALE, HOVER_TICKS);
-        } else if (target == PLAY_BUTTON) {
+        if (target == PLAY_BUTTON) {
             stylePlayButton();
         } else if (target >= 0) {
             cards.get(target).place(HOVER_TICKS, 0);

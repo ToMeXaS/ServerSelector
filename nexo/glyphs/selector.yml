@@ -16,18 +16,6 @@ selector_cursor_hand:
   height: 16
   char: "\uE301"
 
-selector_arrow_left:
-  texture: selector/arrow_left
-  ascent: 15
-  height: 24
-  char: "\uE302"
-
-selector_arrow_right:
-  texture: selector/arrow_right
-  ascent: 15
-  height: 24
-  char: "\uE303"
-
 selector_card:
   texture: selector/card
   ascent: 75

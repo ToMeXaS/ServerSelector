@@ -11,8 +11,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public enum Glyph {
     CURSOR_ARROW("selector_cursor_arrow", '\uE300', "\u2196"),
     CURSOR_HAND("selector_cursor_hand", '\uE301', "\u261B"),
-    ARROW_LEFT("selector_arrow_left", '\uE302', "\u25C0"),
-    ARROW_RIGHT("selector_arrow_right", '\uE303', "\u25B6"),
     CARD("selector_card", '\uE304', ""),
     CARD_SELECTED("selector_card_selected", '\uE305', ""),
     PANEL("selector_panel", '\uE306', ""),

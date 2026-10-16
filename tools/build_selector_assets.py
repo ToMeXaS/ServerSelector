@@ -75,8 +75,6 @@ def vignette(width, height):
 GLYPHS = [
     ("cursor_arrow", 0xE300, 16, lambda: kenney("cursor", "PNG/Outline/Default/pointer_b.png")),
     ("cursor_hand", 0xE301, 16, lambda: kenney("cursor", "PNG/Outline/Default/hand_point.png")),
-    ("arrow_left", 0xE302, 24, lambda: kenney("ui", "PNG/Yellow/Default/arrow_decorative_w.png")),
-    ("arrow_right", 0xE303, 24, lambda: kenney("ui", "PNG/Yellow/Default/arrow_decorative_e.png")),
     ("card", 0xE304, 144, lambda: panel(128, 144, (20, 24, 34, 200), (58, 67, 86, 255), 2, 8)),
     ("card_selected", 0xE305, 144, lambda: panel(128, 144, (40, 32, 20, 215), (255, 180, 58, 255), 3, 8)),
     ("panel", 0xE306, 140, lambda: panel(180, 140, (20, 26, 38, 235), (255, 180, 58, 255), 2, 8)),
