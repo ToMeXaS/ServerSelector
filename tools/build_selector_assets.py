@@ -27,7 +27,7 @@ CACHE = ROOT / "tools" / ".cache"
 
 # Full-screen tint over the lobby world behind the selector; tune colour and opacity here
 TINT_COLOR = (0x33, 0x33, 0x33)
-TINT_OPACITY = 0.4
+TINT_OPACITY = 0.65
 
 PACKS = {
     "cursor": "https://kenney.nl/media/pages/assets/cursor-pack/461b29df18-1717599281/kenney_cursor-pack.zip",
